@@ -1,0 +1,21 @@
+SH_ID,Power_Score,Interest_Score,Average_Score,Stakeholder_Weight,SH_Category
+SH-1,9,8,8.5,0.068273,Key SH
+SH-2,7,6,6.5,0.052209,SME
+SH-3,6,6,6.0,0.048193,SME
+SH-4,4,5,4.5,0.036145,General
+SH-5,9,7,8.5,0.068273,Key SH
+SH-6,5,6,5.5,0.044177,General
+SH-7,8,9,8.5,0.068273,Key SH
+SH-8,3,3,3.0,0.024096,General
+SH-9,9,9,9.0,0.072289,Key SH
+SH-10,8,7,7.5,0.060241,Key SH
+SH-11,7,8,7.5,0.060241,General
+SH-12,9,6,7.5,0.060241,General
+SH-13,6,7,6.5,0.052209,General
+SH-14,8,3,5.5,0.044177,General
+SH-15,9,4,6.5,0.052209,General
+SH-16,7,2,4.5,0.036145,General
+SH-17,3,8,5.5,0.044177,General
+SH-18,2,9,5.5,0.044177,General
+SH-19,4,7,5.5,0.044177,General
+SH-20,2,3,2.5,0.02008,General

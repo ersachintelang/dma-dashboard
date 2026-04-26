@@ -1,0 +1,2976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Double Materiality Assessment | Interactive Framework</title>
+
+<!-- Google Fonts: Cormorant Garamond (headings) + DM Sans (body) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN SYSTEM: CSS VARIABLES
+   One place to change colors, fonts, spacing for the entire dashboard
+═══════════════════════════════════════════════════════════════ */
+:root {
+  /* Background */
+  --bg-primary:        #FAFAF8;   /* warm off-white, never pure white */
+  --bg-section-alt:    #F4F3EF;   /* very subtle warm gray for alternating sections */
+  --bg-card:           #FFFFFF;   /* card surfaces */
+
+  /* Text */
+  --text-primary:      #1C1C1A;   /* near-black charcoal, warm tone */
+  --text-secondary:    #5C5C58;   /* medium gray for supporting text */
+  --text-light:        #9C9C96;   /* captions, labels */
+
+  /* ESG Accent Colors — pastel, 15% saturation, board-room ready */
+  --color-E:           #B8D4B8;   /* sage green — Environmental */
+  --color-E-bg:        #EEF5EE;   /* sage green background tint */
+  --color-E-text:      #2D5A2D;   /* sage green dark text */
+
+  --color-S:           #B8CDE8;   /* sky blue — Social */
+  --color-S-bg:        #EEF3FA;   /* sky blue background tint */
+  --color-S-text:      #1E3A5F;   /* sky blue dark text */
+
+  --color-G:           #E8D5A3;   /* warm amber — Governance */
+  --color-G-bg:        #FAF5E8;   /* amber background tint */
+  --color-G-text:      #5C4010;   /* amber dark text */
+
+  /* Structural */
+  --border:            #E4E3DF;   /* subtle borders */
+  --shadow-sm:         0 1px 3px rgba(28,28,26,0.06);
+  --shadow-md:         0 4px 16px rgba(28,28,26,0.08);
+
+  /* Navigation */
+  --nav-height:        60px;
+  --nav-bg:            rgba(250,250,248,0.96);
+
+  /* Typography */
+  --font-display:      'Cormorant Garamond', Georgia, serif;
+  --font-body:         'DM Sans', system-ui, sans-serif;
+
+  /* Spacing scale */
+  --space-xs:          4px;
+  --space-sm:          8px;
+  --space-md:          16px;
+  --space-lg:          32px;
+  --space-xl:          64px;
+  --space-xxl:         96px;
+
+  /* Max content width */
+  --max-width:         1140px;
+  --section-padding:   80px 24px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--nav-height);
+}
+
+body {
+  font-family:      var(--font-body);
+  font-size:        15px;
+  line-height:      1.7;
+  color:            var(--text-primary);
+  background-color: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION BAR — fixed, always visible
+═══════════════════════════════════════════════════════════════ */
+.nav {
+  position:         fixed;
+  top:              0;
+  left:             0;
+  right:            0;
+  height:           var(--nav-height);
+  background:       var(--nav-bg);
+  backdrop-filter:  blur(8px);
+  border-bottom:    1px solid var(--border);
+  z-index:          1000;
+  display:          flex;
+  align-items:      center;
+  padding:          0 var(--space-lg);
+}
+
+.nav-inner {
+  max-width:        var(--max-width);
+  width:            100%;
+  margin:           0 auto;
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+}
+
+.nav-logo {
+  font-family:      var(--font-display);
+  font-size:        17px;
+  font-weight:      500;
+  color:            var(--text-primary);
+  letter-spacing:   0.01em;
+  text-decoration:  none;
+  white-space:      nowrap;
+}
+
+.nav-logo span {
+  color:            var(--text-light);
+  font-weight:      300;
+}
+
+.nav-links {
+  display:          flex;
+  align-items:      center;
+  gap:              var(--space-lg);
+  list-style:       none;
+}
+
+.nav-links a {
+  font-size:        13px;
+  font-weight:      400;
+  color:            var(--text-secondary);
+  text-decoration:  none;
+  letter-spacing:   0.02em;
+  transition:       color 0.2s ease;
+  white-space:      nowrap;
+}
+
+.nav-links a:hover {
+  color:            var(--text-primary);
+}
+
+/* Active nav state — set by JS on scroll */
+.nav-links a.active {
+  color:            var(--text-primary);
+  font-weight:      500;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PAGE OFFSET — push content below fixed nav
+═══════════════════════════════════════════════════════════════ */
+.page-body {
+  padding-top: var(--nav-height);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION BASE STYLES
+═══════════════════════════════════════════════════════════════ */
+.section {
+  padding: var(--section-padding);
+}
+
+.section-alt {
+  background-color: var(--bg-section-alt);
+}
+
+.section-inner {
+  max-width: var(--max-width);
+  margin:    0 auto;
+}
+
+/* Section label — small uppercase text above headings */
+.section-label {
+  font-family:    var(--font-body);
+  font-size:      11px;
+  font-weight:    500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color:          var(--text-light);
+  margin-bottom:  var(--space-sm);
+}
+
+/* Section heading */
+.section-heading {
+  font-family:  var(--font-display);
+  font-size:    clamp(28px, 4vw, 42px);
+  font-weight:  400;
+  line-height:  1.2;
+  color:        var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+/* Section subheading */
+.section-sub {
+  font-size:    15px;
+  font-weight:  300;
+  color:        var(--text-secondary);
+  max-width:    600px;
+  line-height:  1.7;
+  margin-bottom: var(--space-xl);
+}
+
+/* Thin divider */
+.divider {
+  width:            40px;
+  height:           1px;
+  background-color: var(--border);
+  margin:           var(--space-lg) 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════════════════════════ */
+.card {
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-radius: 8px;
+  padding:       var(--space-lg);
+  box-shadow:    var(--shadow-sm);
+  transition:    box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform:  translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ESG TAGS
+═══════════════════════════════════════════════════════════════ */
+.tag {
+  display:       inline-block;
+  padding:       3px 10px;
+  border-radius: 20px;
+  font-size:     11px;
+  font-weight:   500;
+  letter-spacing: 0.04em;
+}
+
+.tag-E { background: var(--color-E-bg); color: var(--color-E-text); }
+.tag-S { background: var(--color-S-bg); color: var(--color-S-text); }
+.tag-G { background: var(--color-G-bg); color: var(--color-G-text); }
+
+/* ═══════════════════════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════════════════════ */
+.btn {
+  display:         inline-block;
+  padding:         11px 28px;
+  border-radius:   4px;
+  font-family:     var(--font-body);
+  font-size:       13px;
+  font-weight:     500;
+  letter-spacing:  0.04em;
+  cursor:          pointer;
+  text-decoration: none;
+  transition:      all 0.2s ease;
+  border:          1px solid transparent;
+}
+
+.btn-primary {
+  background:   var(--text-primary);
+  color:        var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+.btn-primary:hover {
+  background:   #3a3a38;
+  border-color: #3a3a38;
+}
+
+.btn-outline {
+  background:   transparent;
+  color:        var(--text-primary);
+  border-color: var(--border);
+}
+
+.btn-outline:hover {
+  border-color: var(--text-secondary);
+  background:   var(--bg-section-alt);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PLACEHOLDER BLOCKS — visual markers while sections are empty
+   These will be replaced by real content in Phase 4 steps
+═══════════════════════════════════════════════════════════════ */
+.placeholder-block {
+  background:    var(--bg-section-alt);
+  border:        2px dashed var(--border);
+  border-radius: 8px;
+  padding:       var(--space-xl);
+  text-align:    center;
+  color:         var(--text-light);
+  font-size:     13px;
+  letter-spacing: 0.04em;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 1: HERO
+═══════════════════════════════════════════════════════════════ */
+#hero {
+  min-height:      calc(100vh - var(--nav-height));
+  display:         flex;
+  align-items:     center;
+  padding:         var(--space-xxl) 24px;
+  border-bottom:   1px solid var(--border);
+  position:        relative;
+  overflow:        hidden;
+}
+
+/* Subtle decorative background circles — pastel, non-distracting */
+#hero::before {
+  content:       '';
+  position:      absolute;
+  top:           -120px;
+  right:         -120px;
+  width:         500px;
+  height:        500px;
+  border-radius: 50%;
+  background:    radial-gradient(circle, rgba(184,212,184,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+#hero::after {
+  content:       '';
+  position:      absolute;
+  bottom:        -80px;
+  left:          -80px;
+  width:         360px;
+  height:        360px;
+  border-radius: 50%;
+  background:    radial-gradient(circle, rgba(184,205,232,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  max-width:   var(--max-width);
+  margin:      0 auto;
+  width:       100%;
+  position:    relative;
+  z-index:     1;
+}
+
+.hero-eyebrow {
+  display:        flex;
+  align-items:    center;
+  gap:            var(--space-md);
+  margin-bottom:  var(--space-lg);
+  flex-wrap:      wrap;
+}
+
+.hero-badge {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            6px;
+  padding:        5px 12px;
+  border-radius:  20px;
+  font-size:      11px;
+  font-weight:    500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hero-badge-brsr {
+  background: var(--color-G-bg);
+  color:      var(--color-G-text);
+  border:     1px solid var(--color-G);
+}
+
+.hero-badge-esrs {
+  background: var(--color-E-bg);
+  color:      var(--color-E-text);
+  border:     1px solid var(--color-E);
+}
+
+.hero-badge-gri {
+  background: var(--color-S-bg);
+  color:      var(--color-S-text);
+  border:     1px solid var(--color-S);
+}
+
+.hero-heading {
+  font-family:   var(--font-display);
+  font-size:     clamp(38px, 6vw, 72px);
+  font-weight:   400;
+  line-height:   1.1;
+  color:         var(--text-primary);
+  margin-bottom: var(--space-lg);
+  max-width:     800px;
+  letter-spacing: -0.01em;
+}
+
+.hero-heading em {
+  font-style:  italic;
+  font-weight: 300;
+  color:       var(--text-secondary);
+}
+
+.hero-subheading {
+  font-size:     16px;
+  font-weight:   300;
+  line-height:   1.75;
+  color:         var(--text-secondary);
+  max-width:     580px;
+  margin-bottom: var(--space-xl);
+}
+
+.hero-subheading strong {
+  color:       var(--text-primary);
+  font-weight: 500;
+}
+
+.hero-actions {
+  display:     flex;
+  gap:         var(--space-md);
+  flex-wrap:   wrap;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+}
+
+.hero-divider {
+  width:      1px;
+  height:     32px;
+  background: var(--border);
+}
+
+.hero-stats {
+  display:        flex;
+  gap:            var(--space-xl);
+  flex-wrap:      wrap;
+  padding-top:    var(--space-lg);
+  border-top:     1px solid var(--border);
+  margin-top:     var(--space-lg);
+}
+
+.hero-stat-item {
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+}
+
+.hero-stat-number {
+  font-family:  var(--font-display);
+  font-size:    28px;
+  font-weight:  500;
+  color:        var(--text-primary);
+  line-height:  1;
+}
+
+.hero-stat-label {
+  font-size:      12px;
+  font-weight:    400;
+  color:          var(--text-light);
+  letter-spacing: 0.03em;
+}
+
+/* Staggered hero animation on load */
+.hero-inner > * {
+  opacity:   0;
+  transform: translateY(16px);
+  animation: heroReveal 0.7s ease forwards;
+}
+
+.hero-inner > *:nth-child(1) { animation-delay: 0.1s; }
+.hero-inner > *:nth-child(2) { animation-delay: 0.25s; }
+.hero-inner > *:nth-child(3) { animation-delay: 0.4s; }
+.hero-inner > *:nth-child(4) { animation-delay: 0.52s; }
+.hero-inner > *:nth-child(5) { animation-delay: 0.62s; }
+
+@keyframes heroReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 2: WHAT IS DMA — TAB SYSTEM
+═══════════════════════════════════════════════════════════════ */
+.s2-header {
+  margin-bottom: var(--space-xl);
+}
+
+.s2-tab-bar {
+  display:        flex;
+  gap:            4px;
+  border-bottom:  1px solid var(--border);
+  margin-bottom:  var(--space-xl);
+  overflow-x:     auto;
+}
+
+.s2-tab {
+  padding:        12px 20px;
+  font-family:    var(--font-body);
+  font-size:      13px;
+  font-weight:    500;
+  letter-spacing: 0.03em;
+  color:          var(--text-light);
+  background:     transparent;
+  border:         none;
+  border-bottom:  2px solid transparent;
+  cursor:         pointer;
+  white-space:    nowrap;
+  transition:     all 0.2s ease;
+  margin-bottom:  -1px;
+}
+
+.s2-tab:hover {
+  color: var(--text-secondary);
+}
+
+.s2-tab.active {
+  color:        var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+
+.s2-panel {
+  display: none;
+}
+
+.s2-panel.active {
+  display: block;
+  animation: panelFade 0.3s ease;
+}
+
+@keyframes panelFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Tab A: DMA concept layout */
+.dma-concept-grid {
+  display:               grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap:                   var(--space-lg);
+  align-items:           center;
+  margin-bottom:         var(--space-xl);
+}
+
+.dma-concept-card {
+  padding:       var(--space-lg) var(--space-lg);
+  border-radius: 8px;
+  border:        1px solid var(--border);
+}
+
+.dma-concept-card.inside-out {
+  background: var(--color-E-bg);
+  border-color: var(--color-E);
+}
+
+.dma-concept-card.outside-in {
+  background: var(--color-S-bg);
+  border-color: var(--color-S);
+}
+
+.dma-concept-icon {
+  font-size:     28px;
+  margin-bottom: var(--space-sm);
+}
+
+.dma-concept-label {
+  font-family:    var(--font-display);
+  font-size:      20px;
+  font-weight:    500;
+  margin-bottom:  var(--space-sm);
+  color:          var(--text-primary);
+}
+
+.dma-concept-desc {
+  font-size:   14px;
+  line-height: 1.65;
+  color:       var(--text-secondary);
+}
+
+.dma-concept-desc strong {
+  color:       var(--text-primary);
+  font-weight: 500;
+}
+
+.dma-arrow-center {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            8px;
+}
+
+.dma-arrow-label {
+  font-family:    var(--font-display);
+  font-size:      18px;
+  font-style:     italic;
+  font-weight:    400;
+  color:          var(--text-secondary);
+  white-space:    nowrap;
+}
+
+.dma-arrows {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            4px;
+}
+
+.arrow-right, .arrow-left {
+  font-size:  20px;
+  color:      var(--text-light);
+}
+
+/* Definition box */
+.dma-definition {
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-left:   4px solid var(--text-primary);
+  border-radius: 0 8px 8px 0;
+  padding:       var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.dma-definition p {
+  font-size:   15px;
+  line-height: 1.7;
+  color:       var(--text-secondary);
+}
+
+.dma-definition strong {
+  color:       var(--text-primary);
+  font-weight: 500;
+}
+
+/* Standard pills row */
+.standards-row {
+  display:   flex;
+  gap:       var(--space-md);
+  flex-wrap: wrap;
+}
+
+.standard-pill {
+  display:        flex;
+  flex-direction: column;
+  gap:            4px;
+  padding:        var(--space-md);
+  border-radius:  8px;
+  border:         1px solid var(--border);
+  background:     var(--bg-card);
+  flex:           1;
+  min-width:      180px;
+}
+
+.standard-pill-name {
+  font-size:      12px;
+  font-weight:    500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color:          var(--text-light);
+}
+
+.standard-pill-title {
+  font-size:   14px;
+  font-weight: 500;
+  color:       var(--text-primary);
+}
+
+.standard-pill-desc {
+  font-size:   13px;
+  color:       var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* Tab B: India context */
+.india-context-grid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   var(--space-lg);
+  margin-bottom:         var(--space-lg);
+}
+
+.india-card {
+  padding:       var(--space-lg);
+  border-radius: 8px;
+  border:        1px solid var(--border);
+  background:    var(--bg-card);
+}
+
+.india-card-tag {
+  display:        inline-block;
+  padding:        3px 10px;
+  border-radius:  20px;
+  font-size:      10px;
+  font-weight:    500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom:  var(--space-sm);
+}
+
+.india-card h4 {
+  font-family:   var(--font-display);
+  font-size:     20px;
+  font-weight:   500;
+  margin-bottom: var(--space-sm);
+  color:         var(--text-primary);
+}
+
+.india-card p {
+  font-size:   14px;
+  line-height: 1.65;
+  color:       var(--text-secondary);
+}
+
+.india-card p strong {
+  color:       var(--text-primary);
+  font-weight: 500;
+}
+
+.india-mandate-banner {
+  background:    var(--color-G-bg);
+  border:        1px solid var(--color-G);
+  border-radius: 8px;
+  padding:       var(--space-md) var(--space-lg);
+  display:       flex;
+  align-items:   center;
+  gap:           var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.india-mandate-banner p {
+  font-size:   14px;
+  color:       var(--color-G-text);
+  line-height: 1.6;
+}
+
+.india-mandate-banner strong {
+  font-weight: 600;
+}
+
+/* Tab C: Framework differentiation */
+.framework-diff-grid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   var(--space-lg);
+  margin-bottom:         var(--space-lg);
+}
+
+.diff-card {
+  padding:       var(--space-lg);
+  border-radius: 8px;
+  border:        1px solid var(--border);
+}
+
+.diff-card.standard {
+  background: var(--bg-section-alt);
+}
+
+.diff-card.enhanced {
+  background:  var(--color-E-bg);
+  border-color: var(--color-E);
+}
+
+.diff-card-label {
+  font-size:      11px;
+  font-weight:    500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color:          var(--text-light);
+  margin-bottom:  var(--space-sm);
+}
+
+.diff-card.enhanced .diff-card-label {
+  color: var(--color-E-text);
+}
+
+.diff-card h4 {
+  font-family:   var(--font-display);
+  font-size:     18px;
+  font-weight:   500;
+  margin-bottom: var(--space-sm);
+  color:         var(--text-primary);
+}
+
+.diff-card ul {
+  list-style:  none;
+  padding:     0;
+  display:     flex;
+  flex-direction: column;
+  gap:         8px;
+}
+
+.diff-card ul li {
+  font-size:   14px;
+  color:       var(--text-secondary);
+  line-height: 1.55;
+  padding-left: 16px;
+  position:    relative;
+}
+
+.diff-card ul li::before {
+  content:   '·';
+  position:  absolute;
+  left:      0;
+  color:     var(--text-light);
+}
+
+.diff-card.enhanced ul li::before {
+  content: '✓';
+  color:   var(--color-E-text);
+  font-size: 11px;
+  top: 2px;
+}
+
+.survey-stat-row {
+  display:   flex;
+  gap:       var(--space-md);
+  flex-wrap: wrap;
+  margin-top: var(--space-lg);
+}
+
+.survey-stat {
+  flex:          1;
+  min-width:     160px;
+  padding:       var(--space-md);
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-radius: 8px;
+  text-align:    center;
+}
+
+.survey-stat-pct {
+  font-family:  var(--font-display);
+  font-size:    32px;
+  font-weight:  500;
+  color:        var(--text-primary);
+  display:      block;
+  line-height:  1;
+  margin-bottom: 6px;
+}
+
+.survey-stat-text {
+  font-size:   12px;
+  color:       var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 3: 5-STEP PROCESS
+═══════════════════════════════════════════════════════════════ */
+.process-flow {
+  display:               grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:                   0;
+  margin-bottom:         var(--space-xl);
+  position:              relative;
+}
+
+/* Connector line between steps */
+.process-flow::before {
+  content:    '';
+  position:   absolute;
+  top:        36px;
+  left:       10%;
+  right:      10%;
+  height:     1px;
+  background: var(--border);
+  z-index:    0;
+}
+
+.process-step {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  text-align:     center;
+  padding:        0 8px;
+  cursor:         pointer;
+  position:       relative;
+  z-index:        1;
+}
+
+.step-circle {
+  width:           72px;
+  height:          72px;
+  border-radius:   50%;
+  border:          2px solid var(--border);
+  background:      var(--bg-card);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  margin-bottom:   var(--space-md);
+  transition:      all 0.25s ease;
+  position:        relative;
+}
+
+.step-number {
+  font-family:  var(--font-display);
+  font-size:    22px;
+  font-weight:  500;
+  color:        var(--text-light);
+  transition:   color 0.25s ease;
+}
+
+.step-label {
+  font-size:      12px;
+  font-weight:    500;
+  color:          var(--text-secondary);
+  line-height:    1.4;
+  letter-spacing: 0.01em;
+  transition:     color 0.25s ease;
+}
+
+/* Active step state */
+.process-step.active .step-circle {
+  background:   var(--text-primary);
+  border-color: var(--text-primary);
+  box-shadow:   var(--shadow-md);
+}
+
+.process-step.active .step-number {
+  color: var(--bg-primary);
+}
+
+.process-step.active .step-label {
+  color:       var(--text-primary);
+  font-weight: 600;
+}
+
+.process-step:hover .step-circle {
+  border-color: var(--text-secondary);
+}
+
+/* Step detail panel */
+.step-detail {
+  display:       none;
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-radius: 8px;
+  padding:       var(--space-lg) var(--space-xl);
+  animation:     panelFade 0.3s ease;
+}
+
+.step-detail.active {
+  display: block;
+}
+
+.step-detail-header {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           var(--space-lg);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border);
+}
+
+.step-detail-number {
+  font-family:  var(--font-display);
+  font-size:    56px;
+  font-weight:  300;
+  color:        var(--border);
+  line-height:  1;
+  flex-shrink:  0;
+}
+
+.step-detail-title-block {
+  flex: 1;
+}
+
+.step-detail-tag {
+  display:        inline-block;
+  padding:        3px 10px;
+  border-radius:  20px;
+  font-size:      10px;
+  font-weight:    500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background:     var(--bg-section-alt);
+  color:          var(--text-light);
+  margin-bottom:  var(--space-sm);
+}
+
+.step-detail-title {
+  font-family:   var(--font-display);
+  font-size:     26px;
+  font-weight:   500;
+  color:         var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.step-detail-subtitle {
+  font-size:   14px;
+  color:       var(--text-secondary);
+  font-style:  italic;
+}
+
+.step-detail-body {
+  display:               grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:                   var(--space-lg);
+}
+
+.step-detail-col h5 {
+  font-size:      11px;
+  font-weight:    500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color:          var(--text-light);
+  margin-bottom:  var(--space-sm);
+}
+
+.step-detail-col p {
+  font-size:   14px;
+  color:       var(--text-secondary);
+  line-height: 1.65;
+}
+
+.step-detail-col p strong {
+  color:       var(--text-primary);
+  font-weight: 500;
+}
+
+.step-output-box {
+  background:    var(--bg-section-alt);
+  border-radius: 6px;
+  padding:       var(--space-md);
+}
+
+.step-output-box p {
+  font-size:   13px;
+  color:       var(--text-secondary);
+  line-height: 1.6;
+}
+
+.step-output-box strong {
+  display:       block;
+  font-size:     11px;
+  font-weight:   500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color:         var(--text-light);
+  margin-bottom: 4px;
+}
+
+.step-governance-badge {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            6px;
+  padding:        4px 10px;
+  border-radius:  20px;
+  font-size:      11px;
+  font-weight:    500;
+  background:     var(--color-G-bg);
+  color:          var(--color-G-text);
+  border:         1px solid var(--color-G);
+  margin-top:     var(--space-sm);
+}
+
+@media (max-width: 768px) {
+  .process-flow { grid-template-columns: 1fr 1fr; }
+  .process-flow::before { display: none; }
+  .step-detail-body { grid-template-columns: 1fr; }
+  .step-detail-header { flex-direction: column; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 4: STAKEHOLDER UNIVERSE
+═══════════════════════════════════════════════════════════════ */
+
+/* Explanation strip above chart */
+.s4-explainer {
+  display:               grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap:                   var(--space-md);
+  margin-bottom:         var(--space-xl);
+}
+
+.s4-quadrant-pill {
+  padding:       var(--space-md);
+  border-radius: 8px;
+  background:    var(--bg-card);
+}
+
+.s4-quadrant-pill h5 {
+  font-size:     13px;
+  font-weight:   500;
+  color:         var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.s4-quadrant-pill p {
+  font-size:   12px;
+  color:       var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Chart and table layout */
+.s4-layout {
+  display:               grid;
+  grid-template-columns: 1fr 380px;
+  gap:                   var(--space-xl);
+  align-items:           start;
+}
+
+/* Chart container */
+.s4-chart-wrap {
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-radius: 8px;
+  padding:       var(--space-lg);
+}
+
+.s4-chart-title {
+  font-size:      12px;
+  font-weight:    500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color:          var(--text-light);
+  margin-bottom:  var(--space-md);
+}
+
+#sh-matrix-svg {
+  width:  100%;
+  height: auto;
+  display: block;
+}
+
+/* Category legend */
+.s4-legend {
+  display:        flex;
+  gap:            var(--space-lg);
+  margin-top:     var(--space-md);
+  padding-top:    var(--space-md);
+  border-top:     1px solid var(--border);
+  flex-wrap:      wrap;
+}
+
+.s4-legend-item {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  font-size:   12px;
+  color:       var(--text-secondary);
+}
+
+.s4-legend-dot {
+  width:         10px;
+  height:        10px;
+  border-radius: 50%;
+  flex-shrink:   0;
+}
+
+/* Stakeholder table */
+.s4-table-wrap {
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-radius: 8px;
+  overflow:      hidden;
+}
+
+.s4-table-header {
+  padding:         var(--space-md) var(--space-lg);
+  border-bottom:   1px solid var(--border);
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             var(--space-sm);
+}
+
+.s4-table-header span {
+  font-size:      12px;
+  font-weight:    500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color:          var(--text-light);
+}
+
+.s4-table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       13px;
+}
+
+.s4-table th {
+  padding:         8px var(--space-md);
+  text-align:      left;
+  font-size:       11px;
+  font-weight:     500;
+  letter-spacing:  0.04em;
+  color:           var(--text-light);
+  border-bottom:   1px solid var(--border);
+  background:      var(--bg-section-alt);
+}
+
+.s4-table td {
+  padding:       8px var(--space-md);
+  border-bottom: 1px solid var(--border);
+  color:         var(--text-secondary);
+  vertical-align: middle;
+}
+
+.s4-table tr:last-child td {
+  border-bottom: none;
+}
+
+.s4-table tr:hover td {
+  background: var(--bg-section-alt);
+}
+
+.s4-cat-badge {
+  display:        inline-block;
+  padding:        2px 8px;
+  border-radius:  10px;
+  font-size:      10px;
+  font-weight:    500;
+  letter-spacing: 0.04em;
+  white-space:    nowrap;
+}
+
+.cat-key    { background: #E8E0F0; color: #4A2080; }
+.cat-sme    { background: var(--color-E-bg); color: var(--color-E-text); }
+.cat-gen    { background: var(--bg-section-alt); color: var(--text-light); }
+
+/* Tooltip for hovered dot */
+.s4-tooltip {
+  position:      fixed;
+  background:    var(--text-primary);
+  color:         var(--bg-primary);
+  padding:       8px 12px;
+  border-radius: 6px;
+  font-size:     12px;
+  line-height:   1.6;
+  pointer-events: none;
+  opacity:       0;
+  transition:    opacity 0.15s ease;
+  z-index:       999;
+  max-width:     180px;
+}
+
+.s4-tooltip.visible { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 5: RELEVANCE EXPLORER
+═══════════════════════════════════════════════════════════════ */
+.s5-explainer {
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-left:   4px solid var(--color-S);
+  border-radius: 0 8px 8px 0;
+  padding:       var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-xl);
+  font-size:     14px;
+  color:         var(--text-secondary);
+  line-height:   1.7;
+}
+
+.s5-explainer strong { color: var(--text-primary); font-weight: 500; }
+
+.s5-controls {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  flex-wrap:       wrap;
+  gap:             var(--space-md);
+  margin-bottom:   var(--space-lg);
+}
+
+.s5-reset-btn {
+  padding:        7px 16px;
+  border-radius:  4px;
+  font-size:      12px;
+  font-weight:    500;
+  letter-spacing: 0.04em;
+  cursor:         pointer;
+  border:         1px solid var(--border);
+  background:     var(--bg-card);
+  color:          var(--text-secondary);
+  transition:     all 0.2s ease;
+}
+
+.s5-reset-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+.s5-trs-summary {
+  display:   flex;
+  gap:       var(--space-sm);
+  flex-wrap: wrap;
+  font-size: 12px;
+  color:     var(--text-light);
+}
+
+/* Grid container */
+.s5-grid-outer {
+  overflow-x:    auto;
+  border:        1px solid var(--border);
+  border-radius: 8px;
+  background:    var(--bg-card);
+}
+
+.s5-grid-table {
+  border-collapse: collapse;
+  min-width:       900px;
+  width:           100%;
+}
+
+.s5-grid-table th {
+  padding:        6px 4px;
+  font-size:      10px;
+  font-weight:    500;
+  color:          var(--text-light);
+  letter-spacing: 0.04em;
+  text-align:     center;
+  border-bottom:  1px solid var(--border);
+  background:     var(--bg-section-alt);
+  position:       sticky;
+  top:            0;
+  white-space:    nowrap;
+}
+
+.s5-grid-table th.topic-header {
+  text-align: left;
+  padding-left: var(--space-md);
+  min-width:  180px;
+}
+
+.s5-sh-col-head {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            3px;
+  padding:        2px 0;
+}
+
+.s5-cat-toggle {
+  display:        inline-block;
+  padding:        2px 6px;
+  border-radius:  8px;
+  font-size:      9px;
+  font-weight:    500;
+  cursor:         pointer;
+  transition:     all 0.15s ease;
+  user-select:    none;
+  white-space:    nowrap;
+}
+
+.s5-grid-table td {
+  padding:     4px;
+  text-align:  center;
+  border-bottom: 1px solid var(--border);
+}
+
+.s5-grid-table td.topic-cell {
+  text-align:  left;
+  padding:     8px var(--space-md);
+  font-size:   12px;
+  color:       var(--text-secondary);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.s5-grid-table td.topic-cell .esg-dot {
+  display:       inline-block;
+  width:         7px;
+  height:        7px;
+  border-radius: 50%;
+  margin-right:  6px;
+  vertical-align: middle;
+  flex-shrink:   0;
+}
+
+.s5-grid-table td.trs-cell {
+  font-size:   11px;
+  font-weight: 500;
+  color:       var(--text-primary);
+  background:  var(--bg-section-alt);
+  border-left: 1px solid var(--border);
+  min-width:   52px;
+}
+
+.yn-toggle {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  width:           28px;
+  height:          22px;
+  border-radius:   4px;
+  font-size:       10px;
+  font-weight:     600;
+  cursor:          pointer;
+  border:          1px solid transparent;
+  transition:      all 0.15s ease;
+  user-select:     none;
+}
+
+.yn-toggle.yn-y { background: var(--color-E-bg); color: var(--color-E-text); border-color: var(--color-E); }
+.yn-toggle.yn-n { background: var(--bg-section-alt); color: var(--text-light); border-color: var(--border); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 6: MATERIALITY MAPS
+═══════════════════════════════════════════════════════════════ */
+.s6-tab-bar {
+  display:       flex;
+  gap:           4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-lg);
+}
+
+.s6-tab {
+  padding:        10px 20px;
+  font-size:      13px;
+  font-weight:    500;
+  color:          var(--text-light);
+  background:     transparent;
+  border:         none;
+  border-bottom:  2px solid transparent;
+  cursor:         pointer;
+  margin-bottom:  -1px;
+  transition:     all 0.2s ease;
+  letter-spacing: 0.02em;
+}
+
+.s6-tab:hover { color: var(--text-secondary); }
+.s6-tab.active { color: var(--text-primary); border-bottom-color: var(--text-primary); }
+
+.s6-panel { display: none; }
+.s6-panel.active { display: block; animation: panelFade 0.3s ease; }
+
+.s6-layout {
+  display:               grid;
+  grid-template-columns: 1fr 280px;
+  gap:                   var(--space-xl);
+  align-items:           start;
+}
+
+.s6-chart-wrap {
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-radius: 8px;
+  padding:       var(--space-lg);
+}
+
+.s6-chart-title {
+  font-size:      11px;
+  font-weight:    500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color:          var(--text-light);
+  margin-bottom:  var(--space-md);
+}
+
+.s6-filter-bar {
+  display:       flex;
+  gap:           6px;
+  margin-bottom: var(--space-md);
+  flex-wrap:     wrap;
+}
+
+.s6-filter-btn {
+  padding:        5px 14px;
+  border-radius:  20px;
+  font-size:      11px;
+  font-weight:    500;
+  cursor:         pointer;
+  border:         1px solid var(--border);
+  background:     var(--bg-card);
+  color:          var(--text-secondary);
+  transition:     all 0.15s ease;
+}
+
+.s6-filter-btn.active-all { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+.s6-filter-btn.active-E   { background: var(--color-E-bg); color: var(--color-E-text); border-color: var(--color-E); }
+.s6-filter-btn.active-S   { background: var(--color-S-bg); color: var(--color-S-text); border-color: var(--color-S); }
+.s6-filter-btn.active-G   { background: var(--color-G-bg); color: var(--color-G-text); border-color: var(--color-G); }
+
+.s6-legend {
+  display:     flex;
+  gap:         var(--space-md);
+  flex-wrap:   wrap;
+  margin-top:  var(--space-md);
+  padding-top: var(--space-md);
+  border-top:  1px solid var(--border);
+  font-size:   12px;
+  color:       var(--text-secondary);
+}
+
+.s6-legend-item { display: flex; align-items: center; gap: 6px; }
+.s6-legend-dot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* Side panel for topic details */
+.s6-side-panel {
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-radius: 8px;
+  padding:       var(--space-lg);
+  min-height:    300px;
+}
+
+.s6-side-empty {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  justify-content: center;
+  min-height:     260px;
+  color:          var(--text-light);
+  font-size:      13px;
+  text-align:     center;
+  gap:            var(--space-sm);
+}
+
+.s6-side-title {
+  font-family:   var(--font-display);
+  font-size:     18px;
+  font-weight:   500;
+  color:         var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.s6-side-row {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  padding:         8px 0;
+  border-bottom:   1px solid var(--border);
+  font-size:       13px;
+}
+
+.s6-side-row:last-child { border-bottom: none; }
+.s6-side-label { color: var(--text-light); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+.s6-side-value { color: var(--text-primary); font-weight: 500; }
+
+.s6-score-bar-wrap { width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.s6-score-bar      { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 7: METHODOLOGY
+═══════════════════════════════════════════════════════════════ */
+.s7-grid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   var(--space-xl);
+  margin-bottom:         var(--space-xl);
+}
+
+.s7-card {
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-radius: 8px;
+  padding:       var(--space-lg);
+}
+
+.s7-card h4 {
+  font-family:   var(--font-display);
+  font-size:     20px;
+  font-weight:   500;
+  color:         var(--text-primary);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border);
+}
+
+.s7-source-row {
+  display:       flex;
+  gap:           var(--space-md);
+  padding:       var(--space-sm) 0;
+  border-bottom: 1px solid var(--border);
+  align-items:   flex-start;
+}
+
+.s7-source-row:last-child { border-bottom: none; }
+
+.s7-source-tag {
+  flex-shrink:    0;
+  padding:        2px 8px;
+  border-radius:  4px;
+  font-size:      10px;
+  font-weight:    600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background:     var(--bg-section-alt);
+  color:          var(--text-light);
+  margin-top:     2px;
+}
+
+.s7-source-text { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+.s7-source-text strong { color: var(--text-primary); font-weight: 500; display: block; margin-bottom: 2px; }
+
+.s7-scoring-block {
+  background:    var(--bg-section-alt);
+  border-radius: 8px;
+  padding:       var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.s7-scoring-block h5 {
+  font-size:      11px;
+  font-weight:    500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color:          var(--text-light);
+  margin-bottom:  var(--space-md);
+}
+
+.s7-scoring-row {
+  display:         grid;
+  grid-template-columns: 160px 1fr;
+  gap:             var(--space-md);
+  padding:         var(--space-sm) 0;
+  border-bottom:   1px solid var(--border);
+  font-size:       13px;
+  align-items:     start;
+}
+
+.s7-scoring-row:last-child { border-bottom: none; }
+.s7-scoring-label { color: var(--text-primary); font-weight: 500; }
+.s7-scoring-desc  { color: var(--text-secondary); line-height: 1.55; }
+
+.s7-data-note {
+  background:    var(--color-G-bg);
+  border:        1px solid var(--color-G);
+  border-radius: 8px;
+  padding:       var(--space-lg);
+  font-size:     13px;
+  color:         var(--color-G-text);
+  line-height:   1.7;
+}
+
+.s7-data-note strong { font-weight: 600; }
+
+@media (max-width: 900px) {
+  .s6-layout { grid-template-columns: 1fr; }
+  .s7-grid   { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL FADE-IN ANIMATION
+   Sections animate in as user scrolls to them
+═══════════════════════════════════════════════════════════════ */
+.fade-in {
+  opacity:    0;
+  transform:  translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in.visible {
+  opacity:   1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE: stack nav links on smaller screens
+═══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .section { padding: 56px 20px; }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ═══════════════ NAVIGATION ═══════════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">DMA <span>Interactive</span></a>
+    <ul class="nav-links">
+      <li><a href="#what-is-dma">What is DMA</a></li>
+      <li><a href="#process">5-Step Process</a></li>
+      <li><a href="#stakeholders">Stakeholders</a></li>
+      <li><a href="#relevance">Relevance Explorer</a></li>
+      <li><a href="#maps">Materiality Maps</a></li>
+      <li><a href="#methodology">Methodology</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══════════════ PAGE BODY ═══════════════ -->
+<div class="page-body">
+
+  <!-- SECTION 1: HERO -->
+  <section id="hero" class="section">
+    <div class="hero-inner">
+
+      <div class="hero-eyebrow">
+        <span class="hero-badge hero-badge-brsr">SEBI · BRSR</span>
+        <span class="hero-badge hero-badge-esrs">ESRS 1 · CSRD</span>
+        <span class="hero-badge hero-badge-gri">GRI 3 · 2021</span>
+      </div>
+
+      <h1 class="hero-heading">
+        Double Materiality Assessment<br>
+        <em>A structured framework for identifying<br>what matters most to your business.</em>
+      </h1>
+
+      <p class="hero-subheading">
+        India's top 1,000 listed companies are required to report sustainability
+        performance under <strong>SEBI's BRSR framework</strong>. Double Materiality Assessment
+        is the rigorous, stakeholder-driven process that tells you <strong>what to report,
+        why it matters,</strong> and how to defend every decision under
+        <strong>ESRS 1, GRI 3,</strong> and global assurance standards.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#what-is-dma" class="btn btn-primary">Explore the Framework</a>
+        <div class="hero-divider"></div>
+        <a href="#maps" class="btn btn-outline">Explore the Assessment</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat-item">
+          <span class="hero-stat-number">21</span>
+          <span class="hero-stat-label">Material Topics assessed</span>
+        </div>
+        <div class="hero-stat-item">
+          <span class="hero-stat-number">20</span>
+          <span class="hero-stat-label">Stakeholder groups engaged</span>
+        </div>
+        <div class="hero-stat-item">
+          <span class="hero-stat-number">3</span>
+          <span class="hero-stat-label">Materiality maps generated</span>
+        </div>
+        <div class="hero-stat-item">
+          <span class="hero-stat-number">5</span>
+          <span class="hero-stat-label">Step process framework</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 2: WHAT IS DMA -->
+  <section id="what-is-dma" class="section section-alt fade-in">
+    <div class="section-inner">
+
+      <!-- Section header -->
+      <div class="s2-header">
+        <p class="section-label">Foundation</p>
+        <h2 class="section-heading">Understanding Double Materiality</h2>
+        <p class="section-sub">The conceptual, regulatory, and strategic foundation of a rigorous materiality assessment.</p>
+      </div>
+
+      <!-- Tab navigation -->
+      <div class="s2-tab-bar">
+        <button class="s2-tab active" data-tab="dma-concept">What is Double Materiality</button>
+        <button class="s2-tab" data-tab="india-context">Why It Matters in India</button>
+        <button class="s2-tab" data-tab="framework-diff">What Makes This Framework Different</button>
+      </div>
+
+      <!-- ── TAB A: WHAT IS DMA ── -->
+      <div class="s2-panel active" id="tab-dma-concept">
+
+        <div class="dma-definition">
+          <p>
+            <strong>Double Materiality</strong> is the principle that a company must assess sustainability
+            from two simultaneous directions: the impact its operations have on people and the
+            environment, and the impact sustainability issues have on its own financial performance.
+            A topic is material if it is significant in either or both dimensions.
+          </p>
+        </div>
+
+        <div class="dma-concept-grid">
+
+          <div class="dma-concept-card inside-out">
+            <div class="dma-concept-icon">🌍</div>
+            <div class="dma-concept-label">Inside-Out</div>
+            <p class="dma-concept-desc">
+              <strong>Impact Materiality.</strong> How does your organisation affect
+              people, communities, and the environment? This includes actual and
+              potential impacts, both negative and positive, across your entire
+              value chain from upstream sourcing to downstream use.
+              <br><br>
+              Governed by <strong>ESRS 1</strong> and <strong>GRI 3</strong>.
+              Assessed through Scale, Scope, Irremediability, and Likelihood.
+            </p>
+          </div>
+
+          <div class="dma-arrow-center">
+            <div class="dma-arrows">
+              <span class="arrow-right">→</span>
+              <span class="arrow-left">←</span>
+            </div>
+            <span class="dma-arrow-label">Double<br>Materiality</span>
+          </div>
+
+          <div class="dma-concept-card outside-in">
+            <div class="dma-concept-icon">📊</div>
+            <div class="dma-concept-label">Outside-In</div>
+            <p class="dma-concept-desc">
+              <strong>Financial Materiality.</strong> How do sustainability conditions
+              affect your organisation's financial position, revenues, costs, assets,
+              and access to capital? This includes risks and opportunities arising
+              from environmental, social, and governance factors.
+              <br><br>
+              Aligned with <strong>IFRS Sustainability</strong> and <strong>ESRS 1</strong>.
+              Assessed through Magnitude and Likelihood of financial effects.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="standards-row">
+          <div class="standard-pill">
+            <span class="standard-pill-name">ESRS 1</span>
+            <span class="standard-pill-title">European Sustainability Reporting Standards</span>
+            <span class="standard-pill-desc">Mandatory under the EU's CSRD. Requires both impact and financial materiality assessment. Defines the Double Materiality concept in regulatory terms.</span>
+          </div>
+          <div class="standard-pill">
+            <span class="standard-pill-name">GRI 3</span>
+            <span class="standard-pill-title">Global Reporting Initiative: Material Topics</span>
+            <span class="standard-pill-desc">Focuses on impact materiality through stakeholder engagement and due diligence. A GRI assessment forms a strong foundation for the impact dimension of DMA.</span>
+          </div>
+          <div class="standard-pill">
+            <span class="standard-pill-name">BRSR</span>
+            <span class="standard-pill-title">Business Responsibility and Sustainability Reporting</span>
+            <span class="standard-pill-desc">SEBI's mandatory framework for India's top 1,000 listed companies. Requires disclosure on nine NGRBC principles with quantitative ESG KPIs.</span>
+          </div>
+          <div class="standard-pill">
+            <span class="standard-pill-name">EFRAG IG 1</span>
+            <span class="standard-pill-title">Materiality Assessment Implementation Guidance</span>
+            <span class="standard-pill-desc">Provides step-by-step guidance on how to conduct a DMA under ESRS. Defines thresholds, IRO identification, and stakeholder engagement requirements.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── TAB B: INDIA CONTEXT ── -->
+      <div class="s2-panel" id="tab-india-context">
+
+        <div class="india-mandate-banner">
+          <span style="font-size:24px">🇮🇳</span>
+          <p>
+            <strong>Mandatory from FY 2022-23:</strong> SEBI requires India's top 1,000 listed companies
+            to file a Business Responsibility and Sustainability Report (BRSR) covering environmental,
+            social, and governance performance across nine NGRBC principles. From FY 2025-26, value
+            chain disclosures and limited assurance apply to the top 250 listed entities.
+          </p>
+        </div>
+
+        <div class="india-context-grid">
+
+          <div class="india-card">
+            <span class="india-card-tag tag tag-G">Regulatory</span>
+            <h4>SEBI and the BRSR Mandate</h4>
+            <p>
+              Introduced in May 2021 to replace the Business Responsibility Report, the
+              <strong>BRSR</strong> is India's most comprehensive ESG disclosure framework.
+              It requires quantitative KPIs, board oversight disclosures, and reporting
+              on stakeholder grievance mechanisms across all nine principles of
+              responsible business conduct. Unlike earlier BRR requirements, BRSR
+              demands granular, verifiable data that can be independently assured.
+            </p>
+          </div>
+
+          <div class="india-card">
+            <span class="india-card-tag tag tag-E">Global Alignment</span>
+            <h4>ESRS and GRI: Why They Matter for Indian Companies</h4>
+            <p>
+              Indian companies with European operations or supply chain relationships
+              are directly affected by the EU's <strong>CSRD</strong> and the associated
+              <strong>ESRS</strong> standards. Even companies without direct EU exposure
+              increasingly face investor and customer expectations aligned with ESRS
+              and GRI. A Double Materiality Assessment conducted under this framework
+              satisfies both BRSR and global reporting requirements simultaneously.
+            </p>
+          </div>
+
+          <div class="india-card">
+            <span class="india-card-tag tag tag-S">Strategic Value</span>
+            <h4>From Compliance to Competitive Advantage</h4>
+            <p>
+              A significant proportion of Indian sustainability professionals
+              treat DMA as a compliance exercise rather than a strategic tool. Organisations
+              that conduct a genuine, stakeholder-validated DMA gain a structured
+              understanding of where sustainability creates financial risk, where it
+              creates opportunity, and where their operations cause the greatest harm.
+              That understanding drives better capital allocation and stronger ESG ratings.
+            </p>
+          </div>
+
+          <div class="india-card">
+            <span class="india-card-tag tag tag-G">Assurance Ready</span>
+            <h4>Building an Audit Trail from Day One</h4>
+            <p>
+              SEBI's BRSR Core framework (2023) introduced <strong>limited assurance</strong>
+              requirements for key ESG KPIs. A structured DMA with documented stakeholder
+              engagement, weighted relevance scores, and an IRO Register creates the
+              evidence trail that assurance providers require. Organisations without
+              this structure face significant rework when assurance becomes mandatory.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ── TAB C: FRAMEWORK DIFFERENTIATION ── -->
+      <div class="s2-panel" id="tab-framework-diff">
+
+        <div class="dma-definition">
+          <p>
+            Most DMA processes in Indian practice are <strong>peer-benchmarked rather than
+            evidence-based</strong>, resulting in near-identical materiality lists across organisations
+            regardless of what they actually do or who bears the consequences of their activities.
+            This framework was designed to make that outcome structurally improbable.
+          </p>
+        </div>
+
+        <div class="framework-diff-grid">
+
+          <div class="diff-card standard">
+            <div class="diff-card-label">Standard Practice</div>
+            <h4>How Most DMAs Are Done</h4>
+            <ul>
+              <li>Topics selected by benchmarking peers, not by evidence</li>
+              <li>All stakeholders surveyed on all topics regardless of relevance</li>
+              <li>Responses averaged without weighting for influence or expertise</li>
+              <li>Impact and financial dimensions assessed simultaneously, compromising independence</li>
+              <li>No structured IRO Register: scoring based on implicit assumptions</li>
+              <li>No governance checkpoints: one team, one pass, no independent validation</li>
+            </ul>
+          </div>
+
+          <div class="diff-card enhanced">
+            <div class="diff-card-label">This Framework</div>
+            <h4>Stakeholder-Centric DMA</h4>
+            <ul>
+              <li>Enterprise context sets the scope before any topic is evaluated</li>
+              <li>Binary Relevance Filter: only stakeholders with documented connection to a topic contribute scores</li>
+              <li>Stakeholder Weight calibrates influence by Power and Interest, not by response volume</li>
+              <li>IRO Register formally documents each impact, risk, and opportunity before scoring begins</li>
+              <li>Impact and financial dimensions assessed independently and approved separately</li>
+              <li>ESG SteerCo governance at six defined checkpoints throughout the process</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <div class="survey-stat-row">
+          <div class="survey-stat">
+            <span class="survey-stat-pct">58%</span>
+            <span class="survey-stat-text">of Indian practitioners cite governance and stakeholder engagement as the primary DMA barrier</span>
+          </div>
+          <div class="survey-stat">
+            <span class="survey-stat-pct">41.7%</span>
+            <span class="survey-stat-text">treat double materiality as a compliance exercise rather than a strategic tool</span>
+          </div>
+          <div class="survey-stat">
+            <span class="survey-stat-pct">&lt;5%</span>
+            <span class="survey-stat-text">of Indian materiality processes include NGOs, civil society, or labour unions as influences</span>
+          </div>
+          <div class="survey-stat">
+            <span class="survey-stat-pct">41.6%</span>
+            <span class="survey-stat-text">of practitioners rate financial materiality at Level 4 or 5 versus only 25% for impact materiality</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 3: 5-STEP PROCESS -->
+  <section id="process" class="section fade-in">
+    <div class="section-inner">
+
+      <p class="section-label">Methodology</p>
+      <h2 class="section-heading">The 5-Step Process</h2>
+      <p class="section-sub">A sequential, stakeholder-centric framework for conducting a Double Materiality Assessment. Click any step to explore it in detail.</p>
+
+      <!-- Step selector circles -->
+      <div class="process-flow">
+        <div class="process-step active" data-step="1">
+          <div class="step-circle"><span class="step-number">1</span></div>
+          <span class="step-label">Enterprise<br>Context</span>
+        </div>
+        <div class="process-step" data-step="2">
+          <div class="step-circle"><span class="step-number">2</span></div>
+          <span class="step-label">Stakeholder<br>Identification</span>
+        </div>
+        <div class="process-step" data-step="3">
+          <div class="step-circle"><span class="step-number">3</span></div>
+          <span class="step-label">IRO<br>Register</span>
+        </div>
+        <div class="process-step" data-step="4">
+          <div class="step-circle"><span class="step-number">4</span></div>
+          <span class="step-label">Relevance<br>Mapping</span>
+        </div>
+        <div class="process-step" data-step="5">
+          <div class="step-circle"><span class="step-number">5</span></div>
+          <span class="step-label">Materiality<br>Assessment</span>
+        </div>
+      </div>
+
+      <!-- Step 1 Detail -->
+      <div class="step-detail active" id="step-detail-1">
+        <div class="step-detail-header">
+          <div class="step-detail-number">01</div>
+          <div class="step-detail-title-block">
+            <span class="step-detail-tag">Foundation</span>
+            <h3 class="step-detail-title">Enterprise Context Setting and Material Topic Identification</h3>
+            <p class="step-detail-subtitle">Before any topic is evaluated, the organisation's specific operating reality must be formally established.</p>
+            <span class="step-governance-badge">⬡ ESG SteerCo Checkpoint 1</span>
+          </div>
+        </div>
+        <div class="step-detail-body">
+          <div class="step-detail-col">
+            <h5>What Happens</h5>
+            <p>A formal analysis of the enterprise business context is conducted: the organisation's specific products and operations, its full value chain from upstream sourcing to downstream use, and its stated sustainability commitments. This context-first sequencing is mandated by the Natural Resource Based View, which requires environmental strategies to be anchored in an organisation's specific resource constraints and operating environment.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Why It Matters</h5>
+            <p>Most organisations produce near-identical materiality topic lists by benchmarking peers rather than examining their own operations. This step makes that outcome <strong>structurally improbable</strong>. No topic enters the assessment without a documented link to the organisation's specific value chain activities. The result is a material topic list that is genuinely organisational, not inherited from convention. Aligned with <strong>GRI Standard 3</strong> and <strong>ESRS 1 AR16</strong>.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Output</h5>
+            <div class="step-output-box">
+              <strong>Deliverable</strong>
+              <p>A validated longlist of material topics mapped to the organisation's value chain, with documented sustainability commitments and regulatory context. Approved by ESG SteerCo before advancing to Step 2.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 Detail -->
+      <div class="step-detail" id="step-detail-2">
+        <div class="step-detail-header">
+          <div class="step-detail-number">02</div>
+          <div class="step-detail-title-block">
+            <span class="step-detail-tag">Stakeholders</span>
+            <h3 class="step-detail-title">Stakeholder Identification and Prioritisation</h3>
+            <p class="step-detail-subtitle">Distinguishing who bears the consequences from who reads the reports.</p>
+            <span class="step-governance-badge">⬡ ESG SteerCo Checkpoints 2 and 3</span>
+          </div>
+        </div>
+        <div class="step-detail-body">
+          <div class="step-detail-col">
+            <h5>What Happens</h5>
+            <p>All stakeholders are identified and separated into two structural categories: <strong>Affected Stakeholders</strong>, those whose interests are impacted by the organisation's activities, and <strong>Users of Reports</strong>, those who use sustainability information for decision-making. Each stakeholder is then scored on Power and Interest on a scale of 1 to 10, producing a Stakeholder Weight using Equations 4.1 and 4.2. The Power vs Interest Matrix visualises the prioritisation.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Why It Matters</h5>
+            <p>Stakeholder lists are typically shaped by who is most visible to management, usually investors and customers. Affected communities and marginalised groups are routinely absent. This structural separation <strong>corrects commercial stakeholder dominance</strong> directly. In Indian practice, NGOs, civil society, and labour unions influence fewer than 5% of materiality processes. The quantitative weight ensures no single group dominates by response volume alone.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Output</h5>
+            <div class="step-output-box">
+              <strong>Deliverable</strong>
+              <p>A prioritised stakeholder register with Power scores, Interest scores, and calculated Stakeholder Weights. Divided into Key Stakeholders, Subject Matter Experts, and General Stakeholders. Independently validated by ESG SteerCo at two checkpoints.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 Detail -->
+      <div class="step-detail" id="step-detail-3">
+        <div class="step-detail-header">
+          <div class="step-detail-number">03</div>
+          <div class="step-detail-title-block">
+            <span class="step-detail-tag">Evidence Base</span>
+            <h3 class="step-detail-title">Materiality Topics and IRO Register</h3>
+            <p class="step-detail-subtitle">Converting dispersed organisational knowledge into a structured, auditable evidence framework.</p>
+            <span class="step-governance-badge">⬡ ESG SteerCo Checkpoint 4</span>
+          </div>
+        </div>
+        <div class="step-detail-body">
+          <div class="step-detail-col">
+            <h5>What Happens</h5>
+            <p>Every material topic from Step 1 is mapped to its associated <strong>Impacts, Risks, and Opportunities (IROs)</strong>. Each IRO is assigned defined boundaries, measurable KPI structures, and a documented position within the value chain. Key Stakeholders and Subject Matter Experts provide definitional inputs through two parallel channels: to the Material Topics list and to the IRO Register itself, with a feedback loop ensuring internal consistency.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Why It Matters</h5>
+            <p>Material topics typically enter scoring without formally documented impacts or risks. Where risk identification exists, it remains narrative, vague, and disconnected from value chain activities. The IRO Register makes the assessment <strong>resistant to that failure</strong> by converting implicit assumptions into a structured, verifiable data framework. It is the mechanism through which every subsequent scoring decision becomes externally defensible. Data gaps are consistently cited as one of the most critical DMA implementation constraints in Indian practice.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Output</h5>
+            <div class="step-output-box">
+              <strong>Deliverable</strong>
+              <p>A complete IRO Register with every material topic assigned documented impact, risk, and opportunity boundaries alongside KPI structures. ESG SteerCo approval required before the register enters the scoring process in Steps 4 and 5.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 Detail -->
+      <div class="step-detail" id="step-detail-4">
+        <div class="step-detail-header">
+          <div class="step-detail-number">04</div>
+          <div class="step-detail-title-block">
+            <span class="step-detail-tag">Engagement</span>
+            <h3 class="step-detail-title">Stakeholder Relevance Mapping and Engagement</h3>
+            <p class="step-detail-subtitle">Replacing broad undifferentiated outreach with governed, evidence-generating engagement.</p>
+            <span class="step-governance-badge">⬡ ESG SteerCo Checkpoint 5</span>
+          </div>
+        </div>
+        <div class="step-detail-body">
+          <div class="step-detail-col">
+            <h5>What Happens</h5>
+            <p>A <strong>Binary Relevance Filter</strong> is applied before any engagement begins. For each stakeholder-topic combination, a formal Yes/No decision is documented: only stakeholders with a substantive and documented connection to a topic contribute scores for that topic. Cleared stakeholders are then engaged through targeted surveys, interviews, focus groups, or workshops, and asked to rate each relevant topic on a scale of 1 to 10 for both Financial and Impact Materiality.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Why It Matters</h5>
+            <p>Most surveys are distributed to every stakeholder on every topic, producing data dominated by whoever responds fastest rather than whoever is most relevant. The Binary Relevance Filter <strong>inverts that logic entirely</strong>. Stakeholder inputs are then weighted by the governance-validated weights from Step 2, using Equations 4.3 and 4.4 to produce Topic Relevance Scores. These scores form the Y-axis of both the Impact and Financial Materiality Maps.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Output</h5>
+            <div class="step-output-box">
+              <strong>Deliverable</strong>
+              <p>A Topic Relevance Score (TRS) for both Impact Materiality and Financial Materiality for each of the 21 material topics. Calculated using weighted aggregation across relevant stakeholders only. These scores feed directly into Step 5 as the Y-axis coordinates of all three materiality maps.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 Detail -->
+      <div class="step-detail" id="step-detail-5">
+        <div class="step-detail-header">
+          <div class="step-detail-number">05</div>
+          <div class="step-detail-title-block">
+            <span class="step-detail-tag">Assessment</span>
+            <h3 class="step-detail-title">Materiality Assessment</h3>
+            <p class="step-detail-subtitle">Three independent assessments: Impact, Financial, and Double Materiality.</p>
+            <span class="step-governance-badge">⬡ ESG SteerCo Checkpoints 5 and 6</span>
+          </div>
+        </div>
+        <div class="step-detail-body">
+          <div class="step-detail-col">
+            <h5>What Happens</h5>
+            <p><strong>Step 5A (Impact):</strong> Each topic is scored on Scale, Scope, Irremediability, and Likelihood by expert assessors. Four equations apply depending on whether the impact is Actual Negative, Potential Negative, Actual Positive, or Potential Positive (Equations 4.5a to 4.5d). <strong>Step 5B (Financial):</strong> Each topic's Risk or Opportunity is scored on Magnitude and Likelihood (Equations 4.6a and 4.6b). <strong>Step 5C (Double):</strong> Both dimensions are combined into a single Double Materiality Map using Equations 4.7 and 4.8.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Why It Matters</h5>
+            <p>Impact and financial dimensions are assessed <strong>independently</strong> and approved separately by ESG SteerCo before being combined. This prevents the more familiar financial dimension from dominating the process at the expense of the less familiar impact dimension. In practice, the financial dimension tends to receive significantly greater attention than impact materiality in Indian organisations, and a common misconception is that DMA is concerned only with environmental and social impacts, leaving the financial dimension absent or subordinated.</p>
+          </div>
+          <div class="step-detail-col">
+            <h5>Output</h5>
+            <div class="step-output-box">
+              <strong>Deliverable</strong>
+              <p>Three validated materiality maps: Impact Materiality Map, Financial Materiality Map, and Double Materiality Map. Each topic is positioned by two coordinates derived from expert assessment and stakeholder relevance scores combined. Topics above the materiality threshold proceed to full disclosure under ESRS, GRI, or BRSR as applicable.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 4: STAKEHOLDER UNIVERSE -->
+  <section id="stakeholders" class="section section-alt fade-in">
+    <div class="section-inner">
+
+      <p class="section-label">Step 2 of 5</p>
+      <h2 class="section-heading">Stakeholder Universe</h2>
+      <p class="section-sub">Every stakeholder is scored on Power and Interest. Their position on this matrix determines how much weight their views carry in the materiality assessment.</p>
+
+      <!-- Quadrant explainer pills -->
+      <div class="s4-explainer">
+        <div class="s4-quadrant-pill">
+          <h5>Manage Closely</h5>
+          <p>High Power, High Interest. Core engagement group. Views carry the most weight in the assessment.</p>
+        </div>
+        <div class="s4-quadrant-pill">
+          <h5>Keep Satisfied</h5>
+          <p>High Power, Low Interest. Significant influence but limited engagement. Must not be neglected.</p>
+        </div>
+        <div class="s4-quadrant-pill">
+          <h5>Keep Informed</h5>
+          <p>Low Power, High Interest. Directly affected communities. Critical for impact materiality.</p>
+        </div>
+        <div class="s4-quadrant-pill">
+          <h5>Monitor</h5>
+          <p>Low Power, Low Interest. Peripheral stakeholders. Tracked but not actively engaged.</p>
+        </div>
+      </div>
+
+      <!-- Chart + Table layout -->
+      <div class="s4-layout">
+
+        <!-- Power vs Interest Matrix -->
+        <div class="s4-chart-wrap">
+          <div class="s4-chart-title">Power vs Interest Matrix — 20 Stakeholders</div>
+          <svg id="sh-matrix-svg" viewBox="0 0 560 480" xmlns="http://www.w3.org/2000/svg">
+            <!-- Will be populated by JavaScript -->
+          </svg>
+          <div class="s4-legend">
+            <div class="s4-legend-item">
+              <div class="s4-legend-dot" style="background:#9B8EC4"></div>
+              Key Stakeholder
+            </div>
+            <div class="s4-legend-item">
+              <div class="s4-legend-dot" style="background:#6BAE8E"></div>
+              Subject Matter Expert
+            </div>
+            <div class="s4-legend-item">
+              <div class="s4-legend-dot" style="background:#B0B0A8"></div>
+              General Stakeholder
+            </div>
+          </div>
+        </div>
+
+        <!-- Stakeholder Table -->
+        <div class="s4-table-wrap">
+          <div class="s4-table-header">
+            <span>All Stakeholders</span>
+            <span id="s4-weight-note" style="font-size:11px;color:var(--text-light);text-transform:none;letter-spacing:0">sorted by weight</span>
+          </div>
+          <div style="max-height:480px;overflow-y:auto;">
+            <table class="s4-table" id="sh-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Pwr</th>
+                  <th>Int</th>
+                  <th>Weight</th>
+                  <th>Category</th>
+                </tr>
+              </thead>
+              <tbody id="sh-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Floating tooltip -->
+  <div class="s4-tooltip" id="s4-tooltip"></div>
+
+  <!-- SECTION 5: RELEVANCE EXPLORER -->
+  <section id="relevance" class="section fade-in">
+    <div class="section-inner">
+
+      <p class="section-label">Step 4 of 5</p>
+      <h2 class="section-heading">Stakeholder Relevance Explorer</h2>
+      <p class="section-sub">Not every stakeholder is relevant to every topic. The Binary Relevance Filter ensures only those with a documented connection contribute scores. Toggle any cell to see the Topic Relevance Score update live.</p>
+
+      <div class="s5-explainer">
+        <strong>How to read this grid:</strong> Each row is a material topic. Each column is a stakeholder. A green <strong>Y</strong> means that stakeholder contributed scores to that topic. A gray <strong>N</strong> means they were excluded. Click any cell to toggle inclusion. The <strong>TRS column</strong> shows the weighted Topic Relevance Score recalculating in real time. Click any stakeholder's category badge to cycle between Key SH, SME, and General.
+      </div>
+
+      <div class="s5-controls">
+        <div style="font-size:12px;color:var(--text-light)">
+          Showing 21 topics × 20 stakeholders &nbsp;·&nbsp; <span id="s5-y-count"></span> active connections
+        </div>
+        <button class="s5-reset-btn" id="s5-reset-btn">↺ Reset to Original</button>
+      </div>
+
+      <div class="s5-grid-outer">
+        <table class="s5-grid-table" id="s5-grid-table"></table>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 6: MATERIALITY MAPS -->
+  <section id="maps" class="section section-alt fade-in">
+    <div class="section-inner">
+
+      <p class="section-label">Step 5 of 5</p>
+      <h2 class="section-heading">Materiality Maps</h2>
+      <p class="section-sub">Three maps, each showing 21 material topics plotted by their assessed scores. Click any topic dot to see full details. Filter by ESG category using the buttons below.</p>
+
+      <div class="s6-tab-bar">
+        <button class="s6-tab active" data-map="double">Double Materiality</button>
+        <button class="s6-tab" data-map="impact">Impact Materiality</button>
+        <button class="s6-tab" data-map="financial">Financial Materiality</button>
+      </div>
+
+      <div class="s6-layout">
+        <div>
+          <div class="s6-chart-wrap">
+            <div class="s6-chart-title" id="s6-chart-title">Double Materiality Map — 21 Topics</div>
+            <div class="s6-filter-bar">
+              <button class="s6-filter-btn active-all" data-filter="all">All Topics</button>
+              <button class="s6-filter-btn" data-filter="E">Environmental</button>
+              <button class="s6-filter-btn" data-filter="S">Social</button>
+              <button class="s6-filter-btn" data-filter="G">Governance</button>
+            </div>
+            <svg id="s6-map-svg" viewBox="0 0 620 500" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div class="s6-legend">
+              <div class="s6-legend-item"><div class="s6-legend-dot" style="background:#6BAE8E"></div>Environmental (E)</div>
+              <div class="s6-legend-item"><div class="s6-legend-dot" style="background:#7BA7CC"></div>Social (S)</div>
+              <div class="s6-legend-item"><div class="s6-legend-dot" style="background:#C4A862"></div>Governance (G)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s6-side-panel" id="s6-side-panel">
+          <div class="s6-side-empty" id="s6-side-empty">
+            <span style="font-size:28px">☉</span>
+            <span>Click any topic dot<br>to see full details</span>
+          </div>
+          <div id="s6-side-content" style="display:none"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 7: METHODOLOGY -->
+  <section id="methodology" class="section fade-in">
+    <div class="section-inner">
+
+      <p class="section-label">Reference</p>
+      <h2 class="section-heading">Methodology and Sources</h2>
+      <p class="section-sub">The scoring logic, regulatory grounding, and data transparency behind every number in this dashboard.</p>
+
+      <div class="s7-grid">
+
+        <!-- Source standards -->
+        <div class="s7-card">
+          <h4>Standards and Frameworks</h4>
+          <div class="s7-source-row">
+            <span class="s7-source-tag">ESRS 1</span>
+            <div class="s7-source-text">
+              <strong>European Sustainability Reporting Standards — General Requirements</strong>
+              Defines Double Materiality as the obligation to assess both impact materiality (Inside-Out) and financial materiality (Outside-In). Requires application of appropriate quantitative or qualitative thresholds. Mandates ESG SteerCo-equivalent governance oversight of the materiality determination process.
+            </div>
+          </div>
+          <div class="s7-source-row">
+            <span class="s7-source-tag">GRI 3</span>
+            <div class="s7-source-text">
+              <strong>GRI Standard 3: Material Topics 2021</strong>
+              Governs the impact materiality dimension. Requires organisations to identify actual and potential negative and positive impacts across their full value chain through genuine stakeholder engagement. Severity of negative impacts is determined by Scale, Scope, and Irremediable character. Likelihood is additionally assessed for potential impacts.
+            </div>
+          </div>
+          <div class="s7-source-row">
+            <span class="s7-source-tag">EFRAG IG1</span>
+            <div class="s7-source-text">
+              <strong>Materiality Assessment Implementation Guidance — May 2024</strong>
+              Provides authoritative step-by-step guidance for conducting a DMA under ESRS. Financial materiality thresholds are based on a combination of likelihood of occurrence and magnitude of financial effects across short, medium, and long-term horizons. A topic may be financially material even when effects are not yet reliably measurable, in which case qualitative thresholds apply.
+            </div>
+          </div>
+          <div class="s7-source-row">
+            <span class="s7-source-tag">BRSR</span>
+            <div class="s7-source-text">
+              <strong>SEBI Business Responsibility and Sustainability Reporting — 2021</strong>
+              India's mandatory ESG disclosure framework for the top 1,000 listed companies. Requires quantitative KPI reporting across nine NGRBC principles. BRSR Core (2023) introduced limited assurance requirements for key ESG indicators applicable to the top 250 listed entities from FY 2025-26.
+            </div>
+          </div>
+          <div class="s7-source-row">
+            <span class="s7-source-tag">THESIS</span>
+            <div class="s7-source-text">
+              <strong>Telang, S.A. (2026). Double Materiality Assessment: A Stakeholder-Centric Process for the Indian Industrial Context.</strong>
+              Master's Thesis, Karlsruhe Institute of Technology (KIT), Institute of Production Science (wbk). The five-step framework, stakeholder weighting methodology, Binary Relevance Filter, and IRO Register structure underpinning this dashboard are sourced from Chapter 4 and Appendix E of this work.
+            </div>
+          </div>
+        </div>
+
+        <!-- Scoring logic -->
+        <div class="s7-card">
+          <h4>Thresholds and What They Mean</h4>
+
+          <div class="s7-scoring-block">
+            <h5>The Scoring Scale — 1 to 10</h5>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">Low · 1 to 3</span>
+              <span class="s7-scoring-desc">Marginal impact or financial effect. Limited in scale, unlikely to materialise, or easily remediated. Topics in this band are monitored but do not require immediate disclosure or action.</span>
+            </div>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">Medium · 4 to 7</span>
+              <span class="s7-scoring-desc">Moderate significance. The effect is present and acknowledged but not severe enough to be decisive on its own. Many topics cluster here. Context and stakeholder weighting determine whether they cross the materiality line.</span>
+            </div>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">High · 8 to 10</span>
+              <span class="s7-scoring-desc">Major or life-threatening impacts on people or the environment, or large-scale financial effects on revenues, costs, assets, or access to capital. Topics scoring here are material by any reasonable threshold.</span>
+            </div>
+          </div>
+
+          <div class="s7-scoring-block">
+            <h5>Impact Materiality Threshold</h5>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">What makes an impact material</span>
+              <span class="s7-scoring-desc">Per ESRS 1 Chapter 3.4 and GRI 3, a negative impact is material when its severity is significant. Severity is determined by how grave the impact is (Scale), how many people or how much of the environment is affected (Scope), and whether the harm can be reversed or remediated (Irremediability). For potential impacts, the probability of occurrence (Likelihood) is also assessed.</span>
+            </div>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">Positive impacts</span>
+              <span class="s7-scoring-desc">Positive impacts are assessed on Scale and Scope only. Irremediability does not apply to benefits. This follows EFRAG IG1 guidance, which structurally excludes irremediability from positive impact scoring.</span>
+            </div>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">Threshold applied here</span>
+              <span class="s7-scoring-desc">A combined Impact Materiality Score of 6.5 or above on a 1 to 10 scale. This threshold is organisation-defined and validated by the ESG SteerCo at Step 5C, consistent with ESRS 1 paragraph AR 15 which requires thresholds to be set and disclosed.</span>
+            </div>
+          </div>
+
+          <div class="s7-scoring-block">
+            <h5>Financial Materiality Threshold</h5>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">What makes a risk or opportunity material</span>
+              <span class="s7-scoring-desc">Per ESRS 1 paragraph AR 15, financial materiality is determined by the combination of Magnitude (how large the potential financial effect would be on revenues, costs, assets, liabilities, or access to capital) and Likelihood (how probable that effect is). Both risks and opportunities are assessed using the same two dimensions. A high-magnitude but low-likelihood risk carries equivalent analytical weight to a high-likelihood moderate-magnitude risk.</span>
+            </div>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">Time horizon</span>
+              <span class="s7-scoring-desc">Financial materiality thresholds must cover short, medium, and long-term horizons. A topic may be financially material even if its effects are not yet measurable at the reporting date. In such cases qualitative thresholds apply, per EFRAG IG1 paragraph 134.</span>
+            </div>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">Threshold applied here</span>
+              <span class="s7-scoring-desc">A combined Financial Materiality Score of 6.5 or above on a 1 to 10 scale, validated by the ESG SteerCo as a separate governance event from the Impact Materiality approval, ensuring the two dimensions are determined independently before being combined on the Double Materiality Map.</span>
+            </div>
+          </div>
+
+          <div class="s7-scoring-block">
+            <h5>Double Materiality: Reading the Map</h5>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">Upper right · Doubly material</span>
+              <span class="s7-scoring-desc">Topic scores above 6.5 on both axes. Significant from both the Inside-Out and Outside-In perspective. Full disclosure required under ESRS, GRI, or BRSR as applicable.</span>
+            </div>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">Upper left or lower right · Singly material</span>
+              <span class="s7-scoring-desc">Topic is material in one dimension only. Per ESRS 1 paragraph 33, singly material topics still require policy, action, and target disclosures even if full metric reporting is not triggered in the non-material dimension.</span>
+            </div>
+            <div class="s7-scoring-row">
+              <span class="s7-scoring-label">Lower left · Below threshold</span>
+              <span class="s7-scoring-desc">Topic scores below 6.5 on both axes. Not material in this reporting cycle. Flagged for reassessment in the next annual cycle as conditions and stakeholder views evolve.</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Data transparency note -->
+      <div class="s7-data-note">
+        <strong>Data Transparency Note.</strong> This dashboard presents the results of a Double Materiality Assessment conducted using the Stakeholder-Centric Process described above. The assessment covers <strong>21 material topics</strong> across Environmental, Social, and Governance dimensions and <strong>20 stakeholder groups</strong>. Stakeholder groups SH-1 through SH-8 represent real engagement data collected through structured surveys and workshops. Groups SH-9 through SH-20 are illustrative stakeholders generated to demonstrate the full Power vs Interest matrix and its effect on Topic Relevance Scores. All scoring logic follows the methodology documented in Appendix E of the source thesis. No stakeholder names or organisational identifiers are disclosed. The materiality threshold applied in this assessment is defined at a combined score of 6.0 on a 1 to 10 scale for both dimensions, in accordance with the organisation-defined threshold principle under ESRS 1 paragraph AR 15 and the ESG SteerCo governance checkpoint at Step 5C.
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- end page-body -->
+
+
+<!-- ═══════════════ JAVASCRIPT: Nav highlight + scroll fade ═══════════════ -->
+<script>
+// ── Section 4: Stakeholder Universe ───────────────────────────────────────
+
+// Stakeholder data embedded directly (from 01_stakeholders.csv)
+const stakeholderData = [
+  {id:'SH-1',  power:9,  interest:8,  avg:8.5,  weight:0.068273, cat:'Key SH'},
+  {id:'SH-2',  power:7,  interest:6,  avg:6.5,  weight:0.052209, cat:'SME'},
+  {id:'SH-3',  power:6,  interest:6,  avg:6.0,  weight:0.048193, cat:'SME'},
+  {id:'SH-4',  power:4,  interest:5,  avg:4.5,  weight:0.036145, cat:'General'},
+  {id:'SH-5',  power:9,  interest:7,  avg:8.0,  weight:0.064257, cat:'Key SH'},
+  {id:'SH-6',  power:5,  interest:6,  avg:5.5,  weight:0.044177, cat:'General'},
+  {id:'SH-7',  power:8,  interest:9,  avg:8.5,  weight:0.068273, cat:'Key SH'},
+  {id:'SH-8',  power:3,  interest:3,  avg:3.0,  weight:0.024096, cat:'General'},
+  {id:'SH-9',  power:9,  interest:9,  avg:9.0,  weight:0.072289, cat:'Key SH'},
+  {id:'SH-10', power:8,  interest:7,  avg:7.5,  weight:0.060241, cat:'Key SH'},
+  {id:'SH-11', power:7,  interest:8,  avg:7.5,  weight:0.060241, cat:'General'},
+  {id:'SH-12', power:9,  interest:6,  avg:7.5,  weight:0.060241, cat:'General'},
+  {id:'SH-13', power:6,  interest:7,  avg:6.5,  weight:0.052209, cat:'General'},
+  {id:'SH-14', power:8,  interest:3,  avg:5.5,  weight:0.044177, cat:'General'},
+  {id:'SH-15', power:9,  interest:4,  avg:6.5,  weight:0.052209, cat:'General'},
+  {id:'SH-16', power:7,  interest:2,  avg:4.5,  weight:0.036145, cat:'General'},
+  {id:'SH-17', power:3,  interest:8,  avg:5.5,  weight:0.044177, cat:'General'},
+  {id:'SH-18', power:2,  interest:9,  avg:5.5,  weight:0.044177, cat:'General'},
+  {id:'SH-19', power:4,  interest:7,  avg:5.5,  weight:0.044177, cat:'General'},
+  {id:'SH-20', power:2,  interest:3,  avg:2.5,  weight:0.020080, cat:'General'},
+];
+
+const catColors = {
+  'Key SH':  '#9B8EC4',
+  'SME':     '#6BAE8E',
+  'General': '#B0B0A8',
+};
+
+const catClass = {
+  'Key SH':  'cat-key',
+  'SME':     'cat-sme',
+  'General': 'cat-gen',
+};
+
+function buildMatrix() {
+  const svg    = document.getElementById('sh-matrix-svg');
+  if (!svg) return;
+
+  const W = 560, H = 480;
+  const pad = { top: 24, right: 24, bottom: 48, left: 48 };
+  const cW = W - pad.left - pad.right;
+  const cH = H - pad.top  - pad.bottom;
+
+  // Scale: score 1-10 maps to chart area
+  const scaleX = v => pad.left + ((v - 1) / 9) * cW;
+  const scaleY = v => pad.top  + ((10 - v) / 9) * cH;
+
+  const mid = 5.5;
+  const midX = scaleX(mid);
+  const midY = scaleY(mid);
+
+  let html = '';
+
+  // Quadrant fills
+  const qFills = [
+    { x: midX,     y: pad.top, w: W - pad.right - midX, h: midY - pad.top,       fill: 'rgba(155,142,196,0.07)' }, // Manage Closely
+    { x: pad.left, y: pad.top, w: midX - pad.left,       h: midY - pad.top,       fill: 'rgba(184,212,184,0.07)' }, // Keep Satisfied
+    { x: midX,     y: midY,    w: W - pad.right - midX,  h: H - pad.bottom - midY,fill: 'rgba(184,205,232,0.07)' }, // Keep Informed
+    { x: pad.left, y: midY,    w: midX - pad.left,        h: H - pad.bottom - midY,fill: 'rgba(200,200,200,0.05)' }, // Monitor
+  ];
+  qFills.forEach(q => {
+    html += `<rect x="${q.x}" y="${q.y}" width="${q.w}" height="${q.h}" fill="${q.fill}"/>`;
+  });
+
+  // Quadrant labels
+  const qLabels = [
+    { x: W - pad.right - 6, y: pad.top + 16, anchor: 'end', text: 'Manage Closely' },
+    { x: pad.left + 6,       y: pad.top + 16, anchor: 'start', text: 'Keep Satisfied' },
+    { x: W - pad.right - 6, y: H - pad.bottom - 8, anchor: 'end', text: 'Keep Informed' },
+    { x: pad.left + 6,       y: H - pad.bottom - 8, anchor: 'start', text: 'Monitor' },
+  ];
+  qLabels.forEach(l => {
+    html += `<text x="${l.x}" y="${l.y}" text-anchor="${l.anchor}" font-size="10" fill="#C0C0B8" font-family="DM Sans, sans-serif" letter-spacing="0.04em">${l.text}</text>`;
+  });
+
+  // Grid lines (light)
+  for (let v = 1; v <= 10; v++) {
+    const x = scaleX(v), y = scaleY(v);
+    html += `<line x1="${x}" y1="${pad.top}" x2="${x}" y2="${H - pad.bottom}" stroke="#E8E7E3" stroke-width="1"/>`;
+    html += `<line x1="${pad.left}" y1="${y}" x2="${W - pad.right}" y2="${y}" stroke="#E8E7E3" stroke-width="1"/>`;
+  }
+
+  // Midline dividers (slightly darker)
+  html += `<line x1="${midX}" y1="${pad.top}" x2="${midX}" y2="${H - pad.bottom}" stroke="#D0CFC8" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  html += `<line x1="${pad.left}" y1="${midY}" x2="${W - pad.right}" y2="${midY}" stroke="#D0CFC8" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+
+  // Axis tick labels
+  for (let v = 1; v <= 10; v++) {
+    html += `<text x="${scaleX(v)}" y="${H - pad.bottom + 16}" text-anchor="middle" font-size="10" fill="#B0B0A8" font-family="DM Sans, sans-serif">${v}</text>`;
+    html += `<text x="${pad.left - 10}" y="${scaleY(v) + 4}" text-anchor="end" font-size="10" fill="#B0B0A8" font-family="DM Sans, sans-serif">${v}</text>`;
+  }
+
+  // Axis labels
+  html += `<text x="${pad.left + cW/2}" y="${H - 4}" text-anchor="middle" font-size="11" fill="#9C9C96" font-family="DM Sans, sans-serif" letter-spacing="0.06em">INTEREST</text>`;
+  html += `<text x="13" y="${pad.top + cH/2}" text-anchor="middle" font-size="11" fill="#9C9C96" font-family="DM Sans, sans-serif" letter-spacing="0.06em" transform="rotate(-90,13,${pad.top + cH/2})">POWER</text>`;
+
+  // Dots — slight jitter for overlapping scores
+  const jitter = {};
+  stakeholderData.forEach(sh => {
+    const key = `${sh.power}_${sh.interest}`;
+    jitter[key] = (jitter[key] || 0) + 1;
+    const count = jitter[key];
+    const offsetX = count > 1 ? (count - 1) * 12 - 6 : 0;
+    const cx = scaleX(sh.interest) + offsetX;
+    const cy = scaleY(sh.power);
+    const col = catColors[sh.cat];
+    const wPct = (sh.weight * 100).toFixed(1);
+
+    html += `<g class="sh-dot" data-id="${sh.id}" data-power="${sh.power}" data-interest="${sh.interest}" data-weight="${wPct}" data-cat="${sh.cat}" style="cursor:pointer">`;
+    html += `<circle cx="${cx}" cy="${cy}" r="14" fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="1.5"/>`;
+    html += `<text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="9.5" font-weight="500" fill="${col}" font-family="DM Sans, sans-serif">${sh.id.replace('SH-','')}</text>`;
+    html += `</g>`;
+  });
+
+  svg.innerHTML = html;
+
+  // Tooltip interaction
+  const tooltip = document.getElementById('s4-tooltip');
+  svg.querySelectorAll('.sh-dot').forEach(dot => {
+    dot.addEventListener('mouseenter', e => {
+      const id  = dot.dataset.id;
+      const pow = dot.dataset.power;
+      const int = dot.dataset.interest;
+      const wt  = dot.dataset.weight;
+      const cat = dot.dataset.cat;
+      tooltip.innerHTML = `<strong>${id}</strong><br>Power: ${pow} · Interest: ${int}<br>Weight: ${wt}%<br>${cat}`;
+      tooltip.classList.add('visible');
+    });
+    dot.addEventListener('mousemove', e => {
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top  = (e.clientY - 10) + 'px';
+    });
+    dot.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('visible');
+    });
+  });
+}
+
+function buildSHTable() {
+  const tbody = document.getElementById('sh-table-body');
+  if (!tbody) return;
+  const sorted = [...stakeholderData].sort((a, b) => b.weight - a.weight);
+  tbody.innerHTML = sorted.map(sh => `
+    <tr>
+      <td><strong style="color:var(--text-primary)">${sh.id}</strong></td>
+      <td>${sh.power}</td>
+      <td>${sh.interest}</td>
+      <td>${(sh.weight * 100).toFixed(1)}%</td>
+      <td><span class="s4-cat-badge ${catClass[sh.cat]}">${sh.cat}</span></td>
+    </tr>
+  `).join('');
+}
+
+// Run on load
+buildMatrix();
+buildSHTable();
+
+// ══════════════════════════════════════════════════════════════
+// SECTION 5: RELEVANCE EXPLORER
+// ══════════════════════════════════════════════════════════════
+
+const topics = [
+  {id:1,  name:'Waste Management',               esg:'E'},
+  {id:2,  name:'Energy Management',              esg:'E'},
+  {id:3,  name:'Emissions Management',           esg:'E'},
+  {id:4,  name:'Water Management',               esg:'E'},
+  {id:5,  name:'Transportation & Logistics',     esg:'E'},
+  {id:6,  name:'Community Engagement',           esg:'S'},
+  {id:7,  name:'Diversity & Inclusion',          esg:'S'},
+  {id:8,  name:'Human Rights',                   esg:'S'},
+  {id:9,  name:'Data Security & Protection',     esg:'G'},
+  {id:10, name:'Safety & Working Conditions',    esg:'S'},
+  {id:11, name:'Product Quality & Safety',       esg:'S'},
+  {id:12, name:'Ethics & Transparency',          esg:'G'},
+  {id:13, name:'Compliance',                     esg:'G'},
+  {id:14, name:'Sustainable Product Design',     esg:'E'},
+  {id:15, name:'Economic Performance',           esg:'G'},
+  {id:16, name:'Biodiversity',                   esg:'E'},
+  {id:17, name:'Customer Relationship Mgmt',     esg:'S'},
+  {id:18, name:'R&D Innovation & Technology',    esg:'G'},
+  {id:19, name:'Human Capital Development',      esg:'S'},
+  {id:20, name:'Vendor Management',              esg:'S'},
+  {id:21, name:'Employees in Value Chain',       esg:'S'},
+];
+
+const esgColors = { E:'#6BAE8E', S:'#7BA7CC', G:'#C4A862' };
+
+// Original relevance filter from CSV (compact encoding: 1=Y 0=N, row=topic, col=SH1..SH20)
+const originalFilter = [
+//  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20
+  [ 1, 0, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1], // T1
+  [ 1, 1, 0, 1, 1, 0, 1, 0, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // T2
+  [ 1, 1, 1, 0, 0, 1, 1, 1, 1,  1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1], // T3
+  [ 1, 1, 1, 1, 1, 0, 1, 1, 1,  1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0], // T4
+  [ 1, 1, 1, 0, 1, 1, 0, 1, 1,  0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1], // T5
+  [ 1, 0, 1, 1, 1, 1, 1, 0, 1,  1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1], // T6
+  [ 1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1], // T7
+  [ 1, 1, 1, 1, 0, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1], // T8
+  [ 1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // T9
+  [ 1, 1, 0, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1], // T10
+  [ 1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0], // T11
+  [ 1, 1, 1, 0, 1, 1, 1, 1, 1,  1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1], // T12
+  [ 1, 1, 1, 1, 1, 0, 1, 1, 1,  1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1], // T13
+  [ 1, 1, 1, 1, 1, 1, 0, 1, 1,  1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1], // T14
+  [ 1, 0, 1, 1, 0, 1, 0, 1, 1,  1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1], // T15
+  [ 1, 1, 1, 1, 1, 0, 1, 1, 1,  0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1], // T16
+  [ 1, 1, 0, 1, 1, 1, 1, 1, 0,  1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1], // T17
+  [ 1, 1, 1, 1, 1, 1, 1, 0, 1,  1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1], // T18
+  [ 1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1], // T19
+  [ 1, 1, 1, 1, 0, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1], // T20
+  [ 1, 1, 1, 1, 1, 1, 1, 1, 1,  0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1], // T21
+];
+
+// Live filter state (deep copy of original)
+let liveFilter = originalFilter.map(row => [...row]);
+
+// SH category state
+const shCats = stakeholderData.map(sh => sh.cat);
+const catCycle = ['Key SH','SME','General'];
+
+function computeTRS(topicIdx) {
+  let weightedSum = 0, weightTotal = 0;
+  stakeholderData.forEach((sh, shIdx) => {
+    if (liveFilter[topicIdx][shIdx] === 1) {
+      weightedSum += sh.weight * 8.0; // base avg score proxy
+      weightTotal += sh.weight;
+    }
+  });
+  return weightTotal > 0 ? (weightedSum / weightTotal).toFixed(2) : '—';
+}
+
+function countYCells() {
+  return liveFilter.reduce((sum,row) => sum + row.reduce((s,v) => s+v, 0), 0);
+}
+
+function buildS5Grid() {
+  const table = document.getElementById('s5-grid-table');
+  if (!table) return;
+
+  // Header row
+  let headerHTML = '<thead><tr><th class="topic-header">Material Topic</th>';
+  stakeholderData.forEach((sh, i) => {
+    const catClass2 = sh.cat === 'Key SH' ? 'cat-key' : sh.cat === 'SME' ? 'cat-sme' : 'cat-gen';
+    headerHTML += `<th>
+      <div class="s5-sh-col-head">
+        <span style="font-size:10px;color:var(--text-secondary)">${sh.id}</span>
+        <span class="s5-cat-toggle s4-cat-badge ${catClass2}" data-sh="${i}" id="s5-cat-${i}">${sh.cat === 'General' ? 'Gen' : sh.cat}</span>
+      </div>
+    </th>`;
+  });
+  headerHTML += '<th class="topic-header" style="text-align:center;min-width:60px">TRS</th></tr></thead>';
+
+  // Body rows
+  let bodyHTML = '<tbody>';
+  topics.forEach((topic, ti) => {
+    bodyHTML += `<tr>
+      <td class="topic-cell">
+        <span class="esg-dot" style="background:${esgColors[topic.esg]}"></span>
+        ${topic.name}
+      </td>`;
+    stakeholderData.forEach((sh, si) => {
+      const val = liveFilter[ti][si];
+      bodyHTML += `<td><span class="yn-toggle ${val ? 'yn-y' : 'yn-n'}" data-ti="${ti}" data-si="${si}">${val ? 'Y' : 'N'}</span></td>`;
+    });
+    bodyHTML += `<td class="trs-cell" id="trs-${ti}">${computeTRS(ti)}</td>`;
+    bodyHTML += '</tr>';
+  });
+  bodyHTML += '</tbody>';
+
+  table.innerHTML = headerHTML + bodyHTML;
+
+  // Update Y count
+  document.getElementById('s5-y-count').textContent = countYCells();
+
+  // Toggle cell click
+  table.querySelectorAll('.yn-toggle').forEach(el => {
+    el.addEventListener('click', () => {
+      const ti = +el.dataset.ti, si = +el.dataset.si;
+      liveFilter[ti][si] = liveFilter[ti][si] === 1 ? 0 : 1;
+      el.textContent = liveFilter[ti][si] ? 'Y' : 'N';
+      el.className = `yn-toggle ${liveFilter[ti][si] ? 'yn-y' : 'yn-n'}`;
+      document.getElementById(`trs-${ti}`).textContent = computeTRS(ti);
+      document.getElementById('s5-y-count').textContent = countYCells();
+    });
+  });
+
+  // Category toggle click
+  table.querySelectorAll('.s5-cat-toggle').forEach(el => {
+    el.addEventListener('click', () => {
+      const si = +el.dataset.sh;
+      const cur = catCycle.indexOf(stakeholderData[si].cat);
+      stakeholderData[si].cat = catCycle[(cur + 1) % 3];
+      const nc = stakeholderData[si].cat;
+      const nclass = nc === 'Key SH' ? 'cat-key' : nc === 'SME' ? 'cat-sme' : 'cat-gen';
+      el.textContent = nc === 'General' ? 'Gen' : nc;
+      el.className = `s5-cat-toggle s4-cat-badge ${nclass}`;
+    });
+  });
+}
+
+// Reset button
+document.getElementById('s5-reset-btn')?.addEventListener('click', () => {
+  liveFilter = originalFilter.map(row => [...row]);
+  buildS5Grid();
+});
+
+buildS5Grid();
+
+// ══════════════════════════════════════════════════════════════
+// SECTION 6: MATERIALITY MAPS
+// ══════════════════════════════════════════════════════════════
+
+// Full materiality results (from 06_materiality_results.csv)
+const matResults = [
+  {id:1,  name:'Waste Management',            esg:'E', im:6.83, fm:6.42},
+  {id:2,  name:'Energy Management',           esg:'E', im:8.68, fm:8.05},
+  {id:3,  name:'Emissions Management',        esg:'E', im:7.91, fm:7.12},
+  {id:4,  name:'Water Management',            esg:'E', im:7.20, fm:7.38},
+  {id:5,  name:'Transportation & Logistics',  esg:'E', im:6.64, fm:7.82},
+  {id:6,  name:'Community Engagement',        esg:'S', im:7.35, fm:6.28},
+  {id:7,  name:'Diversity & Inclusion',       esg:'S', im:7.58, fm:7.61},
+  {id:8,  name:'Human Rights',               esg:'S', im:6.91, fm:7.14},
+  {id:9,  name:'Data Security & Protection',  esg:'G', im:7.42, fm:7.88},
+  {id:10, name:'Safety & Working Conditions', esg:'S', im:8.35, fm:8.44},
+  {id:11, name:'Product Quality & Safety',    esg:'S', im:8.75, fm:8.44},
+  {id:12, name:'Ethics & Transparency',       esg:'G', im:7.14, fm:6.54},
+  {id:13, name:'Compliance',                  esg:'G', im:7.62, fm:7.05},
+  {id:14, name:'Sustainable Product Design',  esg:'E', im:8.22, fm:8.28},
+  {id:15, name:'Economic Performance',        esg:'G', im:7.18, fm:7.72},
+  {id:16, name:'Biodiversity',               esg:'E', im:5.63, fm:5.31},
+  {id:17, name:'Customer Relationship Mgmt',  esg:'S', im:7.06, fm:7.48},
+  {id:18, name:'R&D Innovation & Technology', esg:'G', im:7.08, fm:7.48},
+  {id:19, name:'Human Capital Development',   esg:'S', im:7.14, fm:8.36},
+  {id:20, name:'Vendor Management',           esg:'S', im:7.25, fm:7.22},
+  {id:21, name:'Employees in Value Chain',    esg:'S', im:7.84, fm:6.14},
+];
+
+// Axis labels per map type
+const mapConfig = {
+  double:   { xLabel:'Impact Materiality Score', yLabel:'Financial Materiality Score', title:'Double Materiality Map — 21 Topics', xKey:'im', yKey:'fm' },
+  impact:   { xLabel:'Net Impact Score (Expert)',  yLabel:'Topic Relevance Score — Impact', title:'Impact Materiality Map — 21 Topics', xKey:'im', yKey:'im' },
+  financial:{ xLabel:'Net Financial Score (Expert)', yLabel:'Topic Relevance Score — Financial', title:'Financial Materiality Map — 21 Topics', xKey:'fm', yKey:'fm' },
+};
+
+let currentMap    = 'double';
+let currentFilter = 'all';
+let selectedTopic = null;
+
+function buildMap(mapType, filter) {
+  const svg  = document.getElementById('s6-map-svg');
+  if (!svg) return;
+  const cfg  = mapConfig[mapType];
+  const W = 620, H = 500;
+  const pad = { top:24, right:28, bottom:52, left:52 };
+  const cW  = W - pad.left - pad.right;
+  const cH  = H - pad.top  - pad.bottom;
+  const minV = 4, maxV = 10;
+  const scX = v => pad.left + ((v - minV) / (maxV - minV)) * cW;
+  const scY = v => pad.top  + ((maxV - v) / (maxV - minV)) * cH;
+  const thresh = 6.5;
+  const tx = scX(thresh), ty = scY(thresh);
+
+  let html = '';
+
+  // Quadrant shading
+  html += `<rect x="${tx}" y="${pad.top}" width="${W-pad.right-tx}" height="${ty-pad.top}" fill="rgba(107,174,142,0.07)"/>`;
+
+  // Grid lines
+  for (let v = minV; v <= maxV; v += 0.5) {
+    const gx = scX(v), gy = scY(v);
+    html += `<line x1="${gx}" y1="${pad.top}" x2="${gx}" y2="${H-pad.bottom}" stroke="#EDECE8" stroke-width="1"/>`;
+    html += `<line x1="${pad.left}" y1="${gy}" x2="${W-pad.right}" y2="${gy}" stroke="#EDECE8" stroke-width="1"/>`;
+  }
+
+  // Threshold lines
+  html += `<line x1="${tx}" y1="${pad.top}" x2="${tx}" y2="${H-pad.bottom}" stroke="#C8C7C0" stroke-width="1" stroke-dasharray="5,3"/>`;
+  html += `<line x1="${pad.left}" y1="${ty}" x2="${W-pad.right}" y2="${ty}" stroke="#C8C7C0" stroke-width="1" stroke-dasharray="5,3"/>`;
+  html += `<text x="${tx+4}" y="${pad.top+12}" font-size="9" fill="#B0B0A8" font-family="DM Sans,sans-serif">Threshold 6.5</text>`;
+
+  // Axis ticks
+  for (let v = minV; v <= maxV; v++) {
+    html += `<text x="${scX(v)}" y="${H-pad.bottom+16}" text-anchor="middle" font-size="10" fill="#B0B0A8" font-family="DM Sans,sans-serif">${v}</text>`;
+    html += `<text x="${pad.left-8}" y="${scY(v)+4}" text-anchor="end" font-size="10" fill="#B0B0A8" font-family="DM Sans,sans-serif">${v}</text>`;
+  }
+
+  // Axis labels
+  html += `<text x="${pad.left+cW/2}" y="${H-4}" text-anchor="middle" font-size="11" fill="#9C9C96" font-family="DM Sans,sans-serif" letter-spacing="0.05em">${cfg.xLabel.toUpperCase()}</text>`;
+  html += `<text x="14" y="${pad.top+cH/2}" text-anchor="middle" font-size="11" fill="#9C9C96" font-family="DM Sans,sans-serif" letter-spacing="0.05em" transform="rotate(-90,14,${pad.top+cH/2})">${cfg.yLabel.toUpperCase()}</text>`;
+
+  // Topic dots
+  matResults.forEach(t => {
+    const visible  = filter === 'all' || filter === t.esg;
+    const col      = esgColors[t.esg];
+    const xv       = t[cfg.xKey], yv = t[cfg.yKey];
+    const cx       = scX(xv), cy = scY(yv);
+    const opacity  = visible ? 1 : 0.12;
+    const isSelected = selectedTopic === t.id;
+
+    html += `<g class="map-dot" data-id="${t.id}" style="cursor:pointer;opacity:${opacity}">`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${isSelected ? 14 : 11}" fill="${col}" fill-opacity="0.22" stroke="${col}" stroke-width="${isSelected ? 2.5 : 1.5}"/>`;
+    // Short label — always visible
+    const shortName = t.name.length > 14 ? t.name.substring(0,13)+'…' : t.name;
+    html += `<text x="${cx}" y="${cy-14}" text-anchor="middle" font-size="8.5" fill="${col}" font-family="DM Sans,sans-serif" font-weight="500">${shortName}</text>`;
+    html += `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="9" fill="${col}" font-family="DM Sans,sans-serif" font-weight="600">${t.id}</text>`;
+    html += `</g>`;
+  });
+
+  svg.innerHTML = html;
+  document.getElementById('s6-chart-title').textContent = cfg.title;
+
+  // Dot click handler
+  svg.querySelectorAll('.map-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      selectedTopic = +dot.dataset.id;
+      buildMap(currentMap, currentFilter);
+      showTopicDetail(selectedTopic);
+    });
+  });
+}
+
+function showTopicDetail(id) {
+  const t   = matResults.find(x => x.id === id);
+  if (!t) return;
+  const col = esgColors[t.esg];
+  document.getElementById('s6-side-empty').style.display   = 'none';
+  document.getElementById('s6-side-content').style.display = 'block';
+  document.getElementById('s6-side-content').innerHTML = `
+    <span class="tag tag-${t.esg}" style="margin-bottom:var(--space-sm);display:inline-block">${t.esg === 'E' ? 'Environmental' : t.esg === 'S' ? 'Social' : 'Governance'}</span>
+    <div class="s6-side-title">${t.name}</div>
+    <div style="margin-top:var(--space-md)">
+      <div class="s6-side-row">
+        <span class="s6-side-label">Impact Score</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="s6-score-bar-wrap"><div class="s6-score-bar" style="width:${((t.im-4)/6)*100}%;background:${col}"></div></div>
+          <span class="s6-side-value">${t.im}</span>
+        </div>
+      </div>
+      <div class="s6-side-row">
+        <span class="s6-side-label">Financial Score</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="s6-score-bar-wrap"><div class="s6-score-bar" style="width:${((t.fm-4)/6)*100}%;background:${col}"></div></div>
+          <span class="s6-side-value">${t.fm}</span>
+        </div>
+      </div>
+      <div class="s6-side-row">
+        <span class="s6-side-label">Doubly Material</span>
+        <span class="s6-side-value">${t.im >= 6.5 && t.fm >= 6.5 ? '✓ Yes' : t.im >= 6.5 || t.fm >= 6.5 ? '◑ One dimension' : '✗ Below threshold'}</span>
+      </div>
+      <div class="s6-side-row">
+        <span class="s6-side-label">Topic ID</span>
+        <span class="s6-side-value">${t.id}</span>
+      </div>
+    </div>
+  `;
+}
+
+// Tab switching
+document.querySelectorAll('.s6-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.s6-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentMap = tab.dataset.map;
+    selectedTopic = null;
+    document.getElementById('s6-side-empty').style.display   = 'flex';
+    document.getElementById('s6-side-content').style.display = 'none';
+    buildMap(currentMap, currentFilter);
+  });
+});
+
+// ESG filter buttons
+document.querySelectorAll('.s6-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.s6-filter-btn').forEach(b => b.className = 's6-filter-btn');
+    const f = btn.dataset.filter;
+    btn.classList.add(f === 'all' ? 'active-all' : `active-${f}`);
+    currentFilter = f;
+    buildMap(currentMap, currentFilter);
+  });
+});
+
+buildMap('double','all');
+
+// ── Section 3 Step switching ───────────────────────────────────────────────
+const processSteps   = document.querySelectorAll('.process-step');
+const stepDetails    = document.querySelectorAll('.step-detail');
+
+processSteps.forEach(step => {
+  step.addEventListener('click', () => {
+    const target = step.dataset.step;
+    processSteps.forEach(s => s.classList.remove('active'));
+    stepDetails.forEach(d => d.classList.remove('active'));
+    step.classList.add('active');
+    document.getElementById('step-detail-' + target).classList.add('active');
+  });
+});
+
+// ── Section 2 Tab switching ────────────────────────────────────────────────
+const s2Tabs   = document.querySelectorAll('.s2-tab');
+const s2Panels = document.querySelectorAll('.s2-panel');
+
+s2Tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    s2Tabs.forEach(t => t.classList.remove('active'));
+    s2Panels.forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + target).classList.add('active');
+  });
+});
+
+// ── Active nav link on scroll ──────────────────────────────────────────────
+const sections = document.querySelectorAll('section[id]');
+const navLinks  = document.querySelectorAll('.nav-links a');
+
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(link => link.classList.remove('active'));
+      const active = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px' });
+
+sections.forEach(s => navObserver.observe(s));
+
+// ── Fade-in on scroll ──────────────────────────────────────────────────────
+const fadeElements = document.querySelectorAll('.fade-in');
+
+const fadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fadeObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+fadeElements.forEach(el => fadeObserver.observe(el));
+</script>
+
+</body>
+</html>
