@@ -2745,34 +2745,37 @@ buildS5Grid();
 
 // Full materiality results (from 06_materiality_results.csv)
 const matResults = [
-  {id:1,  name:'Waste Management',            esg:'E', im:6.83, fm:6.20},
-  {id:2,  name:'Energy Management',           esg:'E', im:8.68, fm:8.05},
-  {id:3,  name:'Emissions Management',        esg:'E', im:8.10, fm:7.85},
-  {id:4,  name:'Water Management',            esg:'E', im:7.20, fm:5.90},
-  {id:5,  name:'Transportation & Logistics',  esg:'E', im:5.80, fm:7.82},
-  {id:6,  name:'Community Engagement',        esg:'S', im:8.40, fm:5.80},
-  {id:7,  name:'Diversity & Inclusion',       esg:'S', im:7.58, fm:6.10},
-  {id:8,  name:'Human Rights',               esg:'S', im:7.90, fm:5.40},
-  {id:9,  name:'Data Security & Protection',  esg:'G', im:6.10, fm:7.88},
-  {id:10, name:'Safety & Working Conditions', esg:'S', im:8.35, fm:8.44},
-  {id:11, name:'Product Quality & Safety',    esg:'S', im:8.75, fm:8.20},
-  {id:12, name:'Ethics & Transparency',       esg:'G', im:7.14, fm:5.95},
-  {id:13, name:'Compliance',                  esg:'G', im:6.80, fm:6.50},
-  {id:14, name:'Sustainable Product Design',  esg:'E', im:8.22, fm:8.28},
-  {id:15, name:'Economic Performance',        esg:'G', im:5.60, fm:7.72},
-  {id:16, name:'Biodiversity',               esg:'E', im:5.63, fm:5.31},
-  {id:17, name:'Customer Relationship Mgmt',  esg:'S', im:6.20, fm:7.40},
-  {id:18, name:'R&D Innovation & Technology', esg:'G', im:5.90, fm:7.48},
-  {id:19, name:'Human Capital Development',   esg:'S', im:7.65, fm:8.36},
-  {id:20, name:'Vendor Management',           esg:'S', im:6.40, fm:6.10},
-  {id:21, name:'Employees in Value Chain',    esg:'S', im:7.84, fm:5.60},
+  // im = final IM score (double map X), fm = final FM score (double map Y)
+  // im_x = Net Impact Score (expert), im_y = TRS_IM (stakeholder relevance)
+  // fm_x = Net Financial Score (expert), fm_y = TRS_FM (stakeholder relevance)
+  {id:1,  name:'Waste Management',            esg:'E', im:6.83, fm:6.20, im_x:6.40, im_y:7.26, fm_x:5.80, fm_y:6.60},
+  {id:2,  name:'Energy Management',           esg:'E', im:8.68, fm:8.05, im_x:9.50, im_y:7.86, fm_x:8.50, fm_y:7.60},
+  {id:3,  name:'Emissions Management',        esg:'E', im:8.10, fm:7.85, im_x:7.67, im_y:8.53, fm_x:6.80, fm_y:8.90},
+  {id:4,  name:'Water Management',            esg:'E', im:7.20, fm:5.90, im_x:6.00, im_y:8.40, fm_x:7.00, fm_y:4.80},
+  {id:5,  name:'Transportation & Logistics',  esg:'E', im:5.80, fm:7.82, im_x:4.50, im_y:7.10, fm_x:7.00, fm_y:8.64},
+  {id:6,  name:'Community Engagement',        esg:'S', im:8.40, fm:5.80, im_x:7.50, im_y:9.30, fm_x:5.00, fm_y:6.60},
+  {id:7,  name:'Diversity & Inclusion',       esg:'S', im:7.58, fm:6.10, im_x:8.33, im_y:6.83, fm_x:7.00, fm_y:5.20},
+  {id:8,  name:'Human Rights',               esg:'S', im:7.90, fm:5.40, im_x:6.75, im_y:9.05, fm_x:6.50, fm_y:4.30},
+  {id:9,  name:'Data Security & Protection',  esg:'G', im:6.10, fm:7.88, im_x:7.00, im_y:5.20, fm_x:7.50, fm_y:8.26},
+  {id:10, name:'Safety & Working Conditions', esg:'S', im:8.35, fm:8.44, im_x:9.00, im_y:7.70, fm_x:9.00, fm_y:7.88},
+  {id:11, name:'Product Quality & Safety',    esg:'S', im:8.75, fm:8.20, im_x:9.50, im_y:8.00, fm_x:9.00, fm_y:7.40},
+  {id:12, name:'Ethics & Transparency',       esg:'G', im:7.14, fm:5.95, im_x:6.00, im_y:8.28, fm_x:5.00, fm_y:6.90},
+  {id:13, name:'Compliance',                  esg:'G', im:6.80, fm:6.50, im_x:7.50, im_y:6.10, fm_x:5.50, fm_y:7.50},
+  {id:14, name:'Sustainable Product Design',  esg:'E', im:8.22, fm:8.28, im_x:8.50, im_y:7.94, fm_x:8.00, fm_y:8.56},
+  {id:15, name:'Economic Performance',        esg:'G', im:5.60, fm:7.72, im_x:5.75, im_y:5.45, fm_x:8.00, fm_y:7.44},
+  {id:16, name:'Biodiversity',               esg:'E', im:5.63, fm:5.31, im_x:4.67, im_y:6.59, fm_x:4.50, fm_y:6.12},
+  {id:17, name:'Customer Relationship Mgmt',  esg:'S', im:6.20, fm:7.40, im_x:5.00, im_y:7.40, fm_x:6.00, fm_y:8.80},
+  {id:18, name:'R&D Innovation & Technology', esg:'G', im:5.90, fm:7.48, im_x:5.50, im_y:6.30, fm_x:7.00, fm_y:7.96},
+  {id:19, name:'Human Capital Development',   esg:'S', im:7.65, fm:8.36, im_x:6.50, im_y:8.80, fm_x:9.00, fm_y:7.72},
+  {id:20, name:'Vendor Management',           esg:'S', im:6.40, fm:6.10, im_x:6.50, im_y:6.30, fm_x:6.50, fm_y:5.70},
+  {id:21, name:'Employees in Value Chain',    esg:'S', im:7.84, fm:5.60, im_x:8.00, im_y:7.68, fm_x:4.00, fm_y:7.20},
 ];
 
 // Axis labels per map type
 const mapConfig = {
   double:   { xLabel:'Impact Materiality Score', yLabel:'Financial Materiality Score', title:'Double Materiality Map — 21 Topics', xKey:'im', yKey:'fm' },
-  impact:   { xLabel:'Net Impact Score (Expert)',  yLabel:'Topic Relevance Score — Impact', title:'Impact Materiality Map — 21 Topics', xKey:'im', yKey:'im' },
-  financial:{ xLabel:'Net Financial Score (Expert)', yLabel:'Topic Relevance Score — Financial', title:'Financial Materiality Map — 21 Topics', xKey:'fm', yKey:'fm' },
+  impact:   { xLabel:'Net Impact Score',  yLabel:'Stakeholder Relevance — Impact', title:'Impact Materiality Map — 21 Topics', xKey:'im_x', yKey:'im_y' },
+  financial:{ xLabel:'Net Financial Score', yLabel:'Stakeholder Relevance — Financial', title:'Financial Materiality Map — 21 Topics', xKey:'fm_x', yKey:'fm_y' },
 };
 
 let currentMap    = 'double';
