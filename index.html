@@ -2658,15 +2658,28 @@ let liveFilter = originalFilter.map(row => [...row]);
 const shCats = stakeholderData.map(sh => sh.cat);
 const catCycle = ['Key SH','SME','General'];
 
+// Real TRS values from File 4 (Eq 4.3 and 4.4) — used for live recalculation in Section 5
+// When toggle changes, TRS is recalculated using these base scores weighted by SW
+// Base scores per topic are the TRS values themselves (each SH scored at the topic TRS level)
+const baseTRS_IM = [8.7204,8.6411,8.9973,6.5220,7.8250,5.3055,7.2737,7.5443,8.1639,6.1583,
+                    8.6015,9.1912,6.7973,7.4810,4.3434,4.3187,6.5181,7.3717,6.0033,5.6832,6.0527];
+const baseTRS_FM = [8.8809,8.7607,8.9744,6.5810,7.7861,5.2845,7.3339,7.7673,8.6250,7.5000,
+                    8.6882,9.4116,7.0287,7.7198,4.7940,4.2982,6.9146,7.5872,6.0802,5.6458,6.1058];
+
 function computeTRS(topicIdx) {
-  let weightedSum = 0, weightTotal = 0;
+  // Equation 4.3: TRS_IM(j) = SUM[SW(i) * Score(i,j)] / SUM[SW(i) for Y stakeholders]
+  let wSum = 0, wmIM = 0, wmFM = 0;
   stakeholderData.forEach((sh, shIdx) => {
     if (liveFilter[topicIdx][shIdx] === 1) {
-      weightedSum += sh.weight * 8.0; // base avg score proxy
-      weightTotal += sh.weight;
+      wSum  += sh.weight;
+      wmIM  += sh.weight * baseTRS_IM[topicIdx];
+      wmFM  += sh.weight * baseTRS_FM[topicIdx];
     }
   });
-  return weightTotal > 0 ? (weightedSum / weightTotal).toFixed(2) : '—';
+  if (wSum === 0) return '—';
+  const trs_im = wmIM / wSum;
+  const trs_fm = wmFM / wSum;
+  return `IM: ${trs_im.toFixed(2)} | FM: ${trs_fm.toFixed(2)}`;
 }
 
 function countYCells() {
@@ -2750,32 +2763,35 @@ buildS5Grid();
 // SECTION 6: MATERIALITY MAPS
 // ══════════════════════════════════════════════════════════════
 
-// Full materiality results (from 06_materiality_results.csv)
+// Full materiality results — sourced directly from File 4 Sheets F, G, H, I
+// im   = Impact Materiality Score  (Eq 4.7: (Net_IM + TRS_IM) / 2)       — X-axis Double Materiality map
+// fm   = Financial Materiality Score (Eq 4.8: (Net_FM + TRS_FM) / 2)     — Y-axis Double Materiality map
+// im_x = Net Impact Score from expert assessment (Eq 4.5a/b/c/d)         — X-axis Impact Materiality map
+// im_y = TRS_IM stakeholder relevance score (Eq 4.3)                     — Y-axis Impact Materiality map
+// fm_x = Net Financial Score from expert assessment (Eq 4.6a/b)          — X-axis Financial Materiality map
+// fm_y = TRS_FM stakeholder relevance score (Eq 4.4)                     — Y-axis Financial Materiality map
 const matResults = [
-  // im = final IM score (double map X), fm = final FM score (double map Y)
-  // im_x = Net Impact Score (expert), im_y = TRS_IM (stakeholder relevance)
-  // fm_x = Net Financial Score (expert), fm_y = TRS_FM (stakeholder relevance)
-  {id:1,  name:'Waste Management',            esg:'E', im:6.83, fm:6.20, im_x:6.40, im_y:7.26, fm_x:5.80, fm_y:6.60},
-  {id:2,  name:'Energy Management',           esg:'E', im:8.68, fm:8.05, im_x:9.50, im_y:7.86, fm_x:8.50, fm_y:7.60},
-  {id:3,  name:'Emissions Management',        esg:'E', im:8.10, fm:7.85, im_x:7.67, im_y:8.53, fm_x:6.80, fm_y:8.90},
-  {id:4,  name:'Water Management',            esg:'E', im:7.20, fm:5.90, im_x:6.00, im_y:8.40, fm_x:7.00, fm_y:4.80},
-  {id:5,  name:'Transportation & Logistics',  esg:'E', im:5.80, fm:7.82, im_x:4.50, im_y:7.10, fm_x:7.00, fm_y:8.64},
-  {id:6,  name:'Community Engagement',        esg:'S', im:8.40, fm:5.80, im_x:7.50, im_y:9.30, fm_x:5.00, fm_y:6.60},
-  {id:7,  name:'Diversity & Inclusion',       esg:'S', im:7.58, fm:6.10, im_x:8.33, im_y:6.83, fm_x:7.00, fm_y:5.20},
-  {id:8,  name:'Human Rights',               esg:'S', im:7.90, fm:5.40, im_x:6.75, im_y:9.05, fm_x:6.50, fm_y:4.30},
-  {id:9,  name:'Data Security & Protection',  esg:'G', im:6.10, fm:7.88, im_x:7.00, im_y:5.20, fm_x:7.50, fm_y:8.26},
-  {id:10, name:'Safety & Working Conditions', esg:'S', im:8.35, fm:8.44, im_x:9.00, im_y:7.70, fm_x:9.00, fm_y:7.88},
-  {id:11, name:'Product Quality & Safety',    esg:'S', im:8.75, fm:8.20, im_x:9.50, im_y:8.00, fm_x:9.00, fm_y:7.40},
-  {id:12, name:'Ethics & Transparency',       esg:'G', im:7.14, fm:5.95, im_x:6.00, im_y:8.28, fm_x:5.00, fm_y:6.90},
-  {id:13, name:'Compliance',                  esg:'G', im:6.80, fm:6.50, im_x:7.50, im_y:6.10, fm_x:5.50, fm_y:7.50},
-  {id:14, name:'Sustainable Product Design',  esg:'E', im:8.22, fm:8.28, im_x:8.50, im_y:7.94, fm_x:8.00, fm_y:8.56},
-  {id:15, name:'Economic Performance',        esg:'G', im:5.60, fm:7.72, im_x:5.75, im_y:5.45, fm_x:8.00, fm_y:7.44},
-  {id:16, name:'Biodiversity',               esg:'E', im:5.63, fm:5.31, im_x:4.67, im_y:6.59, fm_x:4.50, fm_y:6.12},
-  {id:17, name:'Customer Relationship Mgmt',  esg:'S', im:6.20, fm:7.40, im_x:5.00, im_y:7.40, fm_x:6.00, fm_y:8.80},
-  {id:18, name:'R&D Innovation & Technology', esg:'G', im:5.90, fm:7.48, im_x:5.50, im_y:6.30, fm_x:7.00, fm_y:7.96},
-  {id:19, name:'Human Capital Development',   esg:'S', im:7.65, fm:8.36, im_x:6.50, im_y:8.80, fm_x:9.00, fm_y:7.72},
-  {id:20, name:'Vendor Management',           esg:'S', im:6.40, fm:6.10, im_x:6.50, im_y:6.30, fm_x:6.50, fm_y:5.70},
-  {id:21, name:'Employees in Value Chain',    esg:'S', im:7.84, fm:5.60, im_x:8.00, im_y:7.68, fm_x:4.00, fm_y:7.20},
+  {id:1,  name:'Waste Management',            esg:'E', im:8.0269, fm:7.9405, im_x:7.3333, im_y:8.7204, fm_x:7.0, fm_y:8.8809},
+  {id:2,  name:'Energy Management',           esg:'E', im:9.0705, fm:8.6303, im_x:9.5,    im_y:8.6411, fm_x:8.5, fm_y:8.7607},
+  {id:3,  name:'Emissions Management',        esg:'E', im:8.3320, fm:7.2372, im_x:7.6667, im_y:8.9973, fm_x:5.5, fm_y:8.9744},
+  {id:4,  name:'Water Management',            esg:'E', im:6.2610, fm:6.7905, im_x:6.0,    im_y:6.5220, fm_x:7.0, fm_y:6.5810},
+  {id:5,  name:'Transportation & Logistics',  esg:'E', im:6.9125, fm:7.3931, im_x:6.0,    im_y:7.8250, fm_x:7.0, fm_y:7.7861},
+  {id:6,  name:'Community Engagement',        esg:'S', im:6.4027, fm:5.1422, im_x:7.5,    im_y:5.3055, fm_x:5.0, fm_y:5.2845},
+  {id:7,  name:'Diversity & Inclusion',       esg:'S', im:7.3035, fm:7.6670, im_x:7.3333, im_y:7.2737, fm_x:8.0, fm_y:7.3339},
+  {id:8,  name:'Human Rights',               esg:'S', im:6.6055, fm:7.1336, im_x:5.6667, im_y:7.5443, fm_x:6.5, fm_y:7.7673},
+  {id:9,  name:'Data Security & Protection',  esg:'G', im:7.5819, fm:8.0625, im_x:7.0,    im_y:8.1639, fm_x:7.5, fm_y:8.6250},
+  {id:10, name:'Safety & Working Conditions', esg:'S', im:7.4125, fm:8.2500, im_x:8.6667, im_y:6.1583, fm_x:9.0, fm_y:7.5},
+  {id:11, name:'Product Quality & Safety',    esg:'S', im:5.3008, fm:8.8441, im_x:2.0,    im_y:8.6015, fm_x:9.0, fm_y:8.6882},
+  {id:12, name:'Ethics & Transparency',       esg:'G', im:7.5956, fm:7.2058, im_x:6.0,    im_y:9.1912, fm_x:5.0, fm_y:9.4116},
+  {id:13, name:'Compliance',                  esg:'G', im:7.1487, fm:6.2644, im_x:7.5,    im_y:6.7973, fm_x:5.5, fm_y:7.0287},
+  {id:14, name:'Sustainable Product Design',  esg:'E', im:7.7405, fm:8.1099, im_x:8.0,    im_y:7.4810, fm_x:8.5, fm_y:7.7198},
+  {id:15, name:'Economic Performance',        esg:'G', im:5.8384, fm:6.3970, im_x:7.3333, im_y:4.3434, fm_x:8.0, fm_y:4.7940},
+  {id:16, name:'Biodiversity',               esg:'E', im:4.1594, fm:3.8991, im_x:4.0,    im_y:4.3187, fm_x:3.5, fm_y:4.2982},
+  {id:17, name:'Customer Relationship Mgmt',  esg:'S', im:5.7591, fm:7.2073, im_x:5.0,    im_y:6.5181, fm_x:7.5, fm_y:6.9146},
+  {id:18, name:'R&D Innovation & Technology', esg:'G', im:6.4359, fm:7.2936, im_x:5.5,    im_y:7.3717, fm_x:7.0, fm_y:7.5872},
+  {id:19, name:'Human Capital Development',   esg:'S', im:5.2517, fm:7.2901, im_x:4.5,    im_y:6.0033, fm_x:8.5, fm_y:6.0802},
+  {id:20, name:'Vendor Management',           esg:'S', im:6.0916, fm:6.3229, im_x:6.5,    im_y:5.6832, fm_x:7.0, fm_y:5.6458},
+  {id:21, name:'Employees in Value Chain',    esg:'S', im:7.0263, fm:4.8029, im_x:8.0,    im_y:6.0527, fm_x:3.5, fm_y:6.1058},
 ];
 
 // Axis labels per map type
@@ -2797,7 +2813,7 @@ function buildMap(mapType, filter) {
   const pad = { top:24, right:28, bottom:52, left:52 };
   const cW  = W - pad.left - pad.right;
   const cH  = H - pad.top  - pad.bottom;
-  const minV = 4, maxV = 10;
+  const minV = 1, maxV = 10;
   const scX = v => pad.left + ((v - minV) / (maxV - minV)) * cW;
   const scY = v => pad.top  + ((maxV - v) / (maxV - minV)) * cH;
   const thresh = 6.5;

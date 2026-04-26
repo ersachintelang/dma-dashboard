@@ -1,22 +1,22 @@
 Topic_ID,Topic_Name,ESG,Definition
-1,Waste Management,E,"Entire lifecycle of waste: generation, collection, transport, recovery and disposal, including supervision of such operations."
-2,Energy Management,E,"Proactive and systematic monitoring, control, and optimization of energy consumption to conserve use and decrease energy costs."
-3,Emissions Management,E,"Monitoring, reporting, and reduction of GHG emissions and air pollutants such as NOx, SOx, VOC, PM that affect human health and the environment."
-4,Water Management,E,"Effective oversight of water withdrawal, consumption and discharge to minimise environmental impact and reduce water-related risks."
-5,Transportation & Logistics,E,Systems and processes to address ESG and operational challenges in the supply chain from sourcing materials to delivering final products.
-6,Community Engagement,S,"Organisation efforts to interact, collaborate, and build relationships with communities to create positive social impact and address community concerns."
-7,Diversity & Inclusion,S,Fostering a workforce reflecting varied backgrounds and creating an inclusive environment where all employees have equal opportunities.
-8,Human Rights,S,"Fundamental rights and freedoms for all individuals, eliminating child and forced labour, harassment and discrimination throughout operations and supply chains."
-9,Data Security & Data Protection,G,"Practices and procedures to safeguard data from unauthorised access, breaches, and compliance with data privacy laws and regulations."
-10,Safety & Working Conditions,S,"Implementing a safe and healthy work environment, preventing workplace hazards, promoting employee well-being, and complying with health and safety regulations."
-11,Product Quality & Safety,S,"Ensuring products meet defined standards of reliability, performance and safety, preventing defects or hazards that could pose risks to users."
-12,Ethics & Transparency,G,"Commitment to conducting business with integrity and openness, focusing on ethical behaviour, corporate governance, and anti-competitive conduct."
-13,Compliance,G,"Adherence to national and international legal, regulatory, and industry-specific standards governing the organisation operations."
-14,Sustainable Product Design,E,Designing and manufacturing products that minimise environmental and social impacts across their lifecycle from raw material sourcing to disposal.
-15,Economic Performance,G,"Entity economic value creation and distribution, reflecting overall economic impact on society as employer, market participant, and value chain actor."
-16,Biodiversity,E,"Strategy addressing how operations affect natural habitats, species, and ecosystems particularly in sensitive or high-biodiversity areas."
-17,Customer Relationship Management,S,"Practices for managing customer interactions to enhance satisfaction, loyalty and trust through transparent communication and effective complaint handling."
-18,R&D Innovation & Technology,G,"Systematic process of investing, implementing and developing new products, processes or technologies to improve efficiency and competitive advantage."
-19,Human Capital Development,S,"Strategies to retain skilled employees, reduce turnover, foster positive workplace culture, and provide professional development opportunities."
-20,Vendor Management,S,"Processes for selecting, engaging, and overseeing suppliers to meet operational needs and ESG criteria including sustainability and ethical governance."
-21,Employees in the Value Chain,S,All employees and workers in upstream and downstream value chain who can be materially impacted by the organisation including living wages and health and safety.
+1,Waste Management,E,"Entire lifecycle of waste including generation, collection, transport, recovery and disposal of waste."
+2,Energy Management,E,"Proactive and systematic monitoring, control and optimization of energy consumption."
+3,Emissions Management,E,"Monitoring, reporting and reduction of GHG emissions and air pollutants affecting human health and the environment."
+4,Water Management,E,"Effective oversight of water withdrawal, consumption and discharge to minimise environmental impact."
+5,Transportation & Logistics,E,Systems and processes to address ESG and operational challenges across the supply chain.
+6,Community Engagement,S,Organisation efforts to interact and build relationships with communities to create positive social impact.
+7,Diversity & Inclusion,S,Fostering a workforce reflecting varied backgrounds and creating an inclusive environment with equal opportunities.
+8,Human Rights,S,"Fundamental rights for all individuals, eliminating child and forced labour and harassment throughout operations and supply chains."
+9,Data Security & Protection,G,Practices to safeguard data from unauthorised access and compliance with data privacy laws.
+10,Safety & Working Conditions,S,"Implementing a safe and healthy work environment, preventing workplace hazards and promoting employee well-being."
+11,Product Quality & Safety,S,"Ensuring products meet defined standards of reliability and safety, preventing defects that could pose risks to users."
+12,Ethics & Transparency,G,"Commitment to conducting business with integrity and openness, focusing on ethical behaviour and anti-competitive conduct."
+13,Compliance,G,"Adherence to national and international legal, regulatory and industry-specific standards governing operations."
+14,Sustainable Product Design,E,Designing products that minimise environmental and social impacts across their lifecycle from raw material to disposal.
+15,Economic Performance,G,"Entity economic value creation and distribution, reflecting overall economic impact on society."
+16,Biodiversity,E,"Strategy addressing how operations affect natural habitats, species and ecosystems particularly in sensitive areas."
+17,Customer Relationship Mgmt,S,"Practices for managing customer interactions to enhance satisfaction, loyalty and trust through transparent communication."
+18,R&D Innovation & Technology,G,"Systematic process of investing in and developing new products, processes or technologies to improve efficiency."
+19,Human Capital Development,S,"Strategies to retain skilled employees, reduce turnover and provide professional development opportunities."
+20,Vendor Management,S,Processes for selecting and overseeing suppliers to meet operational needs and ESG criteria.
+21,Employees in Value Chain,S,All employees in upstream and downstream value chain who can be materially impacted by the organisation.

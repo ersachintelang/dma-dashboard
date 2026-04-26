@@ -1,22 +1,22 @@
-Topic_ID,Topic_Name,ESG,Impact_Materiality,Financial_Materiality
-1,Waste Management,E,6.83,6.2
-2,Energy Management,E,8.68,8.05
-3,Emissions Management,E,8.1,7.85
-4,Water Management,E,7.2,5.9
-5,Transportation & Logistics,E,5.8,7.82
-6,Community Engagement,S,8.4,5.8
-7,Diversity & Inclusion,S,7.58,6.1
-8,Human Rights,S,7.9,5.4
-9,Data Security & Protection,G,6.1,7.88
-10,Safety & Working Conditions,S,8.35,8.44
-11,Product Quality & Safety,S,8.75,8.2
-12,Ethics & Transparency,G,7.14,5.95
-13,Compliance,G,6.8,6.5
-14,Sustainable Product Design,E,8.22,8.28
-15,Economic Performance,G,5.6,7.72
-16,Biodiversity,E,5.63,5.31
-17,Customer Relationship Mgmt,S,6.2,7.4
-18,R&D Innovation & Technology,G,5.9,7.48
-19,Human Capital Development,S,7.65,8.36
-20,Vendor Management,S,6.4,6.1
-21,Employees in Value Chain,S,7.84,5.6
+Topic_ID,Topic_Name,ESG,TRS_IM,TRS_FM,Net_Impact_Score,Net_Financial_Score,Impact_Materiality,Financial_Materiality
+1,Waste Management,E,8.720406,8.880915,7.333333,7.0,8.02687,7.940457
+2,Energy Management,E,8.641079,8.76066,9.5,8.5,9.070539,8.63033
+3,Emissions Management,E,8.99733,8.974398,7.666667,5.5,8.331999,7.237199
+4,Water Management,E,6.521997,6.581005,6.0,7.0,6.260998,6.790503
+5,Transportation & Logistics,E,7.824971,7.786109,6.0,7.0,6.912485,7.393054
+6,Community Engagement,S,5.305457,5.284469,7.5,5.0,6.402729,5.142234
+7,Diversity & Inclusion,S,7.273733,7.3339,7.333333,8.0,7.303533,7.66695
+8,Human Rights,S,7.544337,7.767272,5.666667,6.5,6.605502,7.133636
+9,Data Security & Protection,G,8.163866,8.625004,7.0,7.5,7.581933,8.062502
+10,Safety & Working Conditions,S,6.15829,7.5,8.666667,9.0,7.412479,8.25
+11,Product Quality & Safety,S,8.601502,8.688226,2.0,9.0,5.300751,8.844113
+12,Ethics & Transparency,G,9.191162,9.411646,6.0,5.0,7.595581,7.205823
+13,Compliance,G,6.797347,7.028715,7.5,5.5,7.148674,6.264358
+14,Sustainable Product Design,E,7.480986,7.719836,8.0,8.5,7.740493,8.109918
+15,Economic Performance,G,4.343395,4.794026,7.333333,8.0,5.838364,6.397013
+16,Biodiversity,E,4.31872,4.298171,4.0,3.5,4.15936,3.899085
+17,Customer Relationship Mgmt,S,6.518114,6.914594,5.0,7.5,5.759057,7.207297
+18,R&D Innovation & Technology,G,7.371721,7.587229,5.5,7.0,6.435861,7.293615
+19,Human Capital Development,S,6.003337,6.080172,4.5,8.5,5.251669,7.290086
+20,Vendor Management,S,5.68317,5.645756,6.5,7.0,6.091585,6.322878
+21,Employees in Value Chain,S,6.052668,6.105814,8.0,3.5,7.026334,4.802907
