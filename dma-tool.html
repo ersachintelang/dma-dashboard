@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMA Analysis Tool | Double Materiality Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:          #FAFAF8;
+  --bg-alt:      #F4F3EF;
+  --bg-card:     #FFFFFF;
+  --bg-dark:     #1C1C1A;
+  --text:        #1C1C1A;
+  --text-2:      #5C5C58;
+  --text-3:      #9C9C96;
+  --border:      #E4E3DF;
+  --shadow:      0 2px 12px rgba(28,28,26,0.08);
+  --color-E:     #B8D4B8; --color-E-bg: #EEF5EE; --color-E-text: #2D5A2D;
+  --color-S:     #B8CDE8; --color-S-bg: #EEF3FA; --color-S-text: #1E3A5F;
+  --color-G:     #E8D5A3; --color-G-bg: #FAF5E8; --color-G-text: #5C4010;
+  --dot-E: #6BAE8E; --dot-S: #7BA7CC; --dot-G: #C4A862;
+  --font-d: 'Cormorant Garamond', Georgia, serif;
+  --font-b: 'DM Sans', system-ui, sans-serif;
+  --r:     8px;
+  --sp-sm: 8px; --sp-md: 16px; --sp-lg: 32px; --sp-xl: 56px;
+}
+*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-b); font-size: 14px; line-height: 1.65; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+/* ── HEADER ── */
+.tool-header {
+  background: var(--bg-dark);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--color-G);
+  position: sticky; top: 0; z-index: 100;
+}
+.tool-logo { font-family: var(--font-d); font-size: 20px; font-weight: 500; color: #FAFAF8; text-decoration: none; }
+.tool-logo span { color: rgba(255,255,255,0.4); font-weight: 300; }
+.back-link { font-size: 12px; color: rgba(255,255,255,0.5); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+.back-link:hover { color: #E8D5A3; }
+
+/* ── LIMITS BANNER ── */
+.limits-banner {
+  background: var(--color-G-bg);
+  border-bottom: 1px solid var(--color-G);
+  padding: var(--sp-md) var(--sp-lg);
+}
+.limits-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; gap: var(--sp-lg); flex-wrap: wrap; align-items: flex-start;
+}
+.limits-title { font-size: 12px; font-weight: 600; color: var(--color-G-text); letter-spacing: 0.04em; white-space: nowrap; margin-top: 2px; }
+.limits-items { display: flex; gap: var(--sp-lg); flex-wrap: wrap; }
+.limits-item { font-size: 12px; color: var(--color-G-text); line-height: 1.5; }
+.limits-item strong { font-weight: 600; }
+
+/* ── MAIN LAYOUT ── */
+.tool-body { max-width: 1100px; margin: 0 auto; padding: var(--sp-lg) var(--sp-md) var(--sp-xl); }
+
+/* ── PROGRESS ── */
+.progress-bar {
+  display: flex; align-items: center; gap: 4px;
+  margin-bottom: var(--sp-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 8px 16px;
+  flex-wrap: wrap;
+}
+.prog-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px;
+  cursor: pointer; transition: all 0.2s;
+  font-size: 12px; font-weight: 500; color: var(--text-3);
+  border: 1px solid transparent;
+  user-select: none;
+}
+.prog-pill.active { background: var(--text); color: var(--bg); }
+.prog-pill.done   { background: var(--color-E-bg); color: var(--color-E-text); border-color: var(--color-E); }
+.prog-pill.locked { opacity: 0.4; cursor: not-allowed; }
+.prog-num { font-family: var(--font-d); font-size: 15px; font-weight: 500; }
+.prog-sep { color: var(--border); font-size: 18px; }
+
+/* ── PANELS ── */
+.tool-panel { display: none; }
+.tool-panel.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+.panel-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--sp-md); margin-bottom: var(--sp-lg);
+  padding-bottom: var(--sp-md); border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.panel-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-bottom: 3px; }
+.panel-title { font-family: var(--font-d); font-size: 28px; font-weight: 400; color: var(--text); margin-bottom: 4px; }
+.panel-sub   { font-size: 13px; color: var(--text-2); line-height: 1.6; max-width: 520px; }
+
+/* ── BUTTONS ── */
+.btn-next {
+  padding: 10px 22px; background: var(--text); color: var(--bg);
+  border: none; border-radius: var(--r); font-size: 13px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; font-family: var(--font-b);
+  transition: background 0.2s; flex-shrink: 0;
+}
+.btn-next:hover { background: #3a3a38; }
+.btn-sm {
+  padding: 6px 14px; border: 1px solid var(--border); background: var(--bg-card);
+  border-radius: var(--r); font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: var(--font-b); color: var(--text-2); transition: all 0.15s;
+}
+.btn-sm:hover { border-color: var(--text-2); color: var(--text); }
+.btn-add {
+  width: 100%; padding: 9px; background: var(--color-E-bg); color: var(--color-E-text);
+  border: 1px solid var(--color-E); border-radius: var(--r); font-size: 13px;
+  font-weight: 500; cursor: pointer; font-family: var(--font-b); transition: all 0.2s;
+}
+.btn-add:hover { background: var(--color-E); }
+
+/* ── FORM ELEMENTS ── */
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r); padding: var(--sp-lg); }
+.card-title { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); margin-bottom: var(--sp-md); }
+.form-row { margin-bottom: var(--sp-md); }
+.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
+.form-input {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+  border-radius: 4px; font-size: 13px; font-family: var(--font-b);
+  background: var(--bg); color: var(--text);
+}
+.form-input:focus { outline: none; border-color: var(--text-2); }
+.form-select {
+  padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px;
+  font-size: 13px; font-family: var(--font-b); background: var(--bg); color: var(--text); cursor: pointer;
+}
+.slider { width: 100%; accent-color: var(--text); cursor: pointer; margin-top: 4px; }
+.score-val { font-weight: 600; color: var(--text); margin-left: 6px; }
+
+/* ── STEP A LAYOUT ── */
+.step-a-layout { display: grid; grid-template-columns: 380px 1fr; gap: var(--sp-lg); align-items: start; }
+
+/* ── SH TABLE ── */
+.sh-table-wrap { margin-top: var(--sp-md); max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--r); }
+.sh-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.sh-table th { padding: 7px 10px; background: var(--bg-alt); color: var(--text-3); font-size: 10px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid var(--border); text-align: left; }
+.sh-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--text-2); }
+.sh-table tr:last-child td { border-bottom: none; }
+.sh-table tr:hover td { background: var(--bg-alt); }
+.del-btn { background: none; border: none; cursor: pointer; color: var(--text-3); font-size: 14px; }
+.del-btn:hover { color: #C04040; }
+.empty-note { padding: var(--sp-md); font-size: 12px; color: var(--text-3); text-align: center; }
+
+/* ── TAGS ── */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 500; letter-spacing: 0.03em; }
+.tag-key { background: #E8E0F0; color: #4A2080; }
+.tag-sme { background: var(--color-E-bg); color: var(--color-E-text); }
+.tag-gen { background: var(--bg-alt); color: var(--text-3); }
+
+/* ── LEGEND ── */
+.legend-row { display: flex; gap: var(--sp-md); margin-top: var(--sp-sm); padding-top: var(--sp-sm); border-top: 1px solid var(--border); }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-2); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── YN TOGGLE ── */
+.yn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 22px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; user-select: none; }
+.yn-y { background: var(--color-E-bg); color: var(--color-E-text); border-color: var(--color-E); }
+.yn-n { background: var(--bg-alt); color: var(--text-3); border-color: var(--border); }
+
+/* ── GRID ── */
+.grid-outer { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--r); background: var(--bg-card); }
+.grid-table { border-collapse: collapse; min-width: 500px; width: 100%; }
+.grid-table th { padding: 6px 8px; font-size: 10px; font-weight: 500; color: var(--text-3); letter-spacing: 0.04em; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-alt); white-space: nowrap; }
+.grid-table th.th-topic { text-align: left; padding-left: var(--sp-md); min-width: 180px; }
+.grid-table td { padding: 4px 6px; text-align: center; border-bottom: 1px solid var(--border); }
+.grid-table td.td-topic { text-align: left; padding: 7px var(--sp-md); font-size: 12px; color: var(--text-2); white-space: nowrap; }
+
+/* ── STEP C ── */
+.bulk-bar { display: flex; align-items: center; gap: var(--sp-md); flex-wrap: wrap; padding: var(--sp-md) var(--sp-lg); background: var(--bg-alt); border-radius: var(--r); margin-bottom: var(--sp-lg); }
+.topic-pick { display: flex; align-items: center; gap: var(--sp-md); flex-wrap: wrap; margin-bottom: var(--sp-lg); }
+.trs-pill { font-size: 12px; color: var(--color-E-text); background: var(--color-E-bg); padding: 4px 12px; border-radius: 20px; font-weight: 500; }
+.scores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--sp-md); }
+.score-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r); padding: var(--sp-md); }
+.score-card-title { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: var(--sp-md); }
+
+/* ── STEP D ── */
+.threshold-bar { display: flex; align-items: center; gap: var(--sp-md); flex-wrap: wrap; padding: var(--sp-md) var(--sp-lg); background: var(--color-G-bg); border: 1px solid var(--color-G); border-radius: var(--r); margin-bottom: var(--sp-lg); font-size: 13px; color: var(--color-G-text); }
+.expert-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r); padding: var(--sp-lg); }
+.expert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-lg); }
+.type-row { display: flex; gap: var(--sp-sm); flex-wrap: wrap; margin-bottom: var(--sp-md); }
+.type-btn { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text-2); font-family: var(--font-b); transition: all 0.15s; }
+.type-btn.sel { background: var(--text); color: var(--bg); border-color: var(--text); }
+.calc-box { margin-top: var(--sp-md); padding: var(--sp-md); background: var(--bg-alt); border-radius: 6px; font-size: 13px; color: var(--text); font-weight: 500; }
+
+/* ── RESULTS ── */
+.rtabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: var(--sp-lg); }
+.rtab { padding: 9px 18px; font-size: 13px; font-weight: 500; color: var(--text-3); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; margin-bottom: -1px; transition: all 0.2s; font-family: var(--font-b); }
+.rtab.active { color: var(--text); border-bottom-color: var(--text); }
+.results-layout { display: flex; gap: var(--sp-lg); align-items: start; flex-wrap: wrap; }
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.detail-row:last-child { border-bottom: none; }
+.detail-label { color: var(--text-3); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+.detail-val { color: var(--text); font-weight: 500; }
+.score-bar-wrap { width: 80px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.score-bar { height: 100%; border-radius: 3px; }
+
+/* ── RESULTS TABLE ── */
+.results-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.results-table th { padding: 8px 10px; background: var(--bg-alt); color: var(--text-3); font-size: 10px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid var(--border); text-align: left; }
+.results-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text-2); }
+.results-table tr:last-child td { border-bottom: none; }
+.results-table tr:hover td { background: var(--bg-alt); }
+
+@media (max-width: 860px) {
+  .step-a-layout { grid-template-columns: 1fr; }
+  .expert-grid   { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="tool-header">
+  <a href="https://ersachintelang.github.io/dma-dashboard/" class="tool-logo">DMA <span>Analysis Tool</span></a>
+  <a href="https://ersachintelang.github.io/dma-dashboard/" target="_blank" class="back-link">← View Example Assessment</a>
+</header>
+
+<!-- LIMITS BANNER -->
+<div class="limits-banner">
+  <div class="limits-inner">
+    <div class="limits-title">Note</div>
+    <div class="limits-items">
+      <div class="limits-item"><strong>Note 1.</strong> All inputs are lost when you close or refresh this tab. Export your results before leaving.</div>
+      <div class="limits-item"><strong>Note 2.</strong> This tool uses the standard 21 material topics. Custom topic names are not available in this version.</div>
+      <div class="limits-item"><strong>Note 3.</strong> The tool calculates exactly what you enter. Ensure scores reflect genuine expert assessment and stakeholder engagement.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOL BODY -->
+<div class="tool-body">
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar">
+    <div class="prog-pill active" id="pill-A" onclick="goTo('A')"><span class="prog-num">A</span> Stakeholders</div>
+    <span class="prog-sep">›</span>
+    <div class="prog-pill locked" id="pill-B" onclick="goTo('B')"><span class="prog-num">B</span> Relevance</div>
+    <span class="prog-sep">›</span>
+    <div class="prog-pill locked" id="pill-C" onclick="goTo('C')"><span class="prog-num">C</span> SH Scores</div>
+    <span class="prog-sep">›</span>
+    <div class="prog-pill locked" id="pill-D" onclick="goTo('D')"><span class="prog-num">D</span> Expert Scores</div>
+    <span class="prog-sep">›</span>
+    <div class="prog-pill locked" id="pill-R" onclick="goTo('R')"><span class="prog-num">↗</span> Results</div>
+  </div>
+
+  <!-- ══ STEP A ══ -->
+  <div class="tool-panel active" id="panel-A">
+    <div class="panel-head">
+      <div>
+        <div class="panel-label">Step A · Eq 4.1 and 4.2</div>
+        <div class="panel-title">Define Your Stakeholders</div>
+        <div class="panel-sub">Add up to 20 stakeholders. Assign Power and Interest scores (1–9). Stakeholder Weight calculates automatically. Minimum 3 required to proceed.</div>
+      </div>
+      <button class="btn-next" onclick="nextStep('A','B')">Continue to Relevance →</button>
+    </div>
+
+    <div class="step-a-layout">
+      <div>
+        <div class="card">
+          <div class="card-title">Add Stakeholder</div>
+          <div class="form-row">
+            <label class="form-label">Label</label>
+            <input id="ua-label" class="form-input" type="text" placeholder="e.g. Board of Directors" maxlength="30">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Category</label>
+            <select id="ua-cat" class="form-select" style="width:100%">
+              <option value="Key SH">Key Stakeholder</option>
+              <option value="SME">Subject Matter Expert</option>
+              <option value="General" selected>General Stakeholder</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Power Score <span style="font-size:11px;color:var(--text-3);font-weight:400">(1 = minimal influence · 10 = highest influence)</span></label>
+            <input id="ua-power" class="form-input" type="number" min="1" max="10" value="5" placeholder="Enter 1–10" style="width:120px">
+          </div>
+          <div class="form-row">
+            <label class="form-label">Interest Score <span style="font-size:11px;color:var(--text-3);font-weight:400">(1 = least affected · 10 = most affected)</span></label>
+            <input id="ua-interest" class="form-input" type="number" min="1" max="10" value="5" placeholder="Enter 1–10" style="width:120px">
+          </div>
+          <button class="btn-add" onclick="addSH()">+ Add Stakeholder</button>
+        </div>
+
+        <div class="sh-table-wrap" style="margin-top:var(--sp-md)">
+          <table class="sh-table">
+            <thead><tr><th>Label</th><th>Cat</th><th>Pwr</th><th>Int</th><th>Weight</th><th></th></tr></thead>
+            <tbody id="sh-tbody"></tbody>
+          </table>
+          <div id="sh-empty" class="empty-note">No stakeholders yet. Add at least 3.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Power vs Interest Matrix — Live</div>
+        <svg id="ua-svg" viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block"></svg>
+        <div class="legend-row">
+          <div class="leg-item"><div class="leg-dot" style="background:#9B8EC4"></div>Key SH</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#6BAE8E"></div>SME</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#B0B0A8"></div>General</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP B ══ -->
+  <div class="tool-panel" id="panel-B">
+    <div class="panel-head">
+      <div>
+        <div class="panel-label">Step B · Binary Relevance Filter</div>
+        <div class="panel-title">Set Stakeholder Relevance</div>
+        <div class="panel-sub">Toggle Y/N for each stakeholder-topic combination. Only Y-tagged stakeholders contribute scores (Eq 4.3 and 4.4).</div>
+      </div>
+      <button class="btn-next" onclick="nextStep('B','C')">Continue to Scores →</button>
+    </div>
+    <div style="display:flex;gap:var(--sp-md);align-items:center;margin-bottom:var(--sp-md);flex-wrap:wrap">
+      <button class="btn-sm" onclick="setAllYN('Y')">Set All Y</button>
+      <button class="btn-sm" onclick="setAllYN('N')">Set All N</button>
+      <span style="font-size:12px;color:var(--text-3)" id="b-count"></span>
+    </div>
+    <div class="grid-outer"><table class="grid-table" id="b-grid"></table></div>
+  </div>
+
+  <!-- ══ STEP C ══ -->
+  <div class="tool-panel" id="panel-C">
+    <div class="panel-head">
+      <div>
+        <div class="panel-label">Step C · Eq 4.3 and 4.4</div>
+        <div class="panel-title">Enter Stakeholder Scores</div>
+        <div class="panel-sub">Rate each relevant stakeholder on Impact and Financial Materiality (1–10). Topic Relevance Score (TRS) calculates live.</div>
+      </div>
+      <button class="btn-next" onclick="nextStep('C','D')">Continue to Expert Scores →</button>
+    </div>
+
+    <!-- Professional statement on scoring methodology -->
+    <div style="background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid var(--dot-S);border-radius:var(--r);padding:var(--sp-lg);margin-bottom:var(--sp-lg)">
+      <div style="font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:var(--sp-sm)">Why a Single Score Is Not Sufficient</div>
+      <p style="font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:var(--sp-md)">A professionally defensible DMA cannot rest on a single subjective score per topic. Each material topic must be decomposed into multiple targeted questions covering Impact Materiality and Financial Materiality independently. Structured multi-question scoring eliminates individual bias and produces an objective, audit-ready evidence trail.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-md)">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">Mitigates Bias</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.55">Specific dimensional questions prevent participants from defaulting to a single gut-feeling response across all topics.</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">Ensures Granularity</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.55">Separate questions capture critical nuance, such as the distinction between immediate operational disruption and long-term reputational damage.</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">Audit Defensibility</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.55">A structured trail of scored questions provides the evidence base required when a sustainability auditor challenges your materiality conclusions.</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">Strategic Clarity</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.55">Multiple questions reveal precisely where a risk originates, enabling sharper management decisions on whether the source is regulatory exposure, market share, or reputational risk.</div>
+        </div>
+      </div>
+      <div style="margin-top:var(--sp-md);padding-top:var(--sp-md);border-top:1px solid var(--border);font-size:12px;color:var(--text-3)">For this tool, each stakeholder provides a single consolidated score per topic per dimension. In a full professional assessment, replace these scores with averaged responses from your structured engagement questionnaire.</div>
+    </div>
+
+    <div class="bulk-bar">
+      <span style="font-weight:500;color:var(--text-2)">Bulk Fill:</span>
+      <span style="font-size:12px;color:var(--text-3)">Set a default score for all stakeholder-topic entries at once, then adjust individually.</span>
+      <div style="display:flex;align-items:center;gap:var(--sp-sm);margin-left:auto;flex-wrap:wrap">
+        <label class="form-label" style="margin:0">IM Default</label>
+        <select class="form-select" onchange="bulkFill('im',this.value);document.getElementById('c-im-dv').textContent=this.value" id="c-im-sel">
+          ${[1,2,3,4,5,6,7,8,9,10].map(v=>`<option value="${v}"${v===7?' selected':''}>${v}</option>`).join('')}
+        </select>
+        <span class="score-val" id="c-im-dv">7</span>
+        <label class="form-label" style="margin:0 0 0 var(--sp-md)">FM Default</label>
+        <select class="form-select" onchange="bulkFill('fm',this.value);document.getElementById('c-fm-dv').textContent=this.value" id="c-fm-sel">
+          ${[1,2,3,4,5,6,7,8,9,10].map(v=>`<option value="${v}"${v===7?' selected':''}>${v}</option>`).join('')}
+        </select>
+        <span class="score-val" id="c-fm-dv">7</span>
+      </div>
+    </div>
+
+    <div class="topic-pick">
+      <label class="form-label" style="margin:0">Topic:</label>
+      <select id="c-topic" class="form-select" style="min-width:240px" onchange="renderScores()"></select>
+      <span class="trs-pill" id="c-trs">TRS_IM: — | TRS_FM: —</span>
+    </div>
+    <div id="c-scores"></div>
+  </div>
+
+  <!-- ══ STEP D ══ -->
+  <div class="tool-panel" id="panel-D">
+    <div class="panel-head">
+      <div>
+        <div class="panel-label">Step D · Eq 4.5 and 4.6</div>
+        <div class="panel-title">Enter Expert Assessment Scores</div>
+        <div class="panel-sub">For each topic, classify the impact and enter component scores. Net Impact and Net Financial Scores calculate automatically.</div>
+      </div>
+      <button class="btn-next" onclick="generateMaps()">Generate My Maps ↗</button>
+    </div>
+
+    <div class="threshold-bar">
+      <div style="flex:1;min-width:280px">
+        <strong>Materiality Threshold</strong>
+        <div style="font-size:12px;margin-top:3px;opacity:0.85">Neither ESRS nor GRI prescribes a specific threshold value. Per ESRS 1 paragraph AR 15, the threshold is organisation-defined and must be disclosed. Set yours below and apply it consistently to both Impact and Financial Materiality.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--sp-md);flex-wrap:wrap">
+        <label class="form-label" style="margin:0;color:var(--color-G-text)">Threshold Value</label>
+        <input id="d-thresh-input" class="form-input" type="number" min="1" max="10" step="0.5" value="6.5"
+          style="width:80px"
+          oninput="dThresh=parseFloat(this.value)||6.5;document.getElementById('d-thresh-v').textContent=parseFloat(this.value).toFixed(1)">
+        <span style="font-size:13px;font-weight:600;color:var(--color-G-text)" id="d-thresh-v">6.5</span>
+        <span style="font-size:11px;color:var(--color-G-text);opacity:0.7">on a 1–10 scale</span>
+      </div>
+    </div>
+
+    <div class="topic-pick">
+      <label class="form-label" style="margin:0">Topic:</label>
+      <select id="d-topic" class="form-select" style="min-width:240px" onchange="renderExpert()"></select>
+      <span class="trs-pill" id="d-net">Net IM: — | Net FM: —</span>
+    </div>
+    <div id="d-expert"></div>
+  </div>
+
+  <!-- ══ RESULTS ══ -->
+  <div class="tool-panel" id="panel-R">
+    <div class="panel-head">
+      <div>
+        <div class="panel-label">Your Results · Eq 4.7 and 4.8</div>
+        <div class="panel-title">Your Double Materiality Assessment</div>
+        <div class="panel-sub">Three maps generated from your inputs. Click any dot for topic details.</div>
+      </div>
+      <div style="display:flex;gap:var(--sp-sm);flex-wrap:wrap">
+        <button class="btn-next" onclick="exportCSV()">↓ Export Results CSV</button>
+        <button class="btn-sm" onclick="resetTool()" style="align-self:center">↺ Start Over</button>
+      </div>
+    </div>
+
+    <div class="rtabs">
+      <button class="rtab active" onclick="rTab(this,'double')">Double Materiality</button>
+      <button class="rtab" onclick="rTab(this,'impact')">Impact Materiality</button>
+      <button class="rtab" onclick="rTab(this,'financial')">Financial Materiality</button>
+    </div>
+
+    <div class="results-layout">
+      <div class="card" style="flex:1;min-width:300px">
+        <div class="card-title" id="r-map-title">Double Materiality Map</div>
+        <svg id="r-svg" viewBox="0 0 620 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block"></svg>
+        <div class="legend-row">
+          <div class="leg-item"><div class="leg-dot" style="background:#6BAE8E"></div>Environmental</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#7BA7CC"></div>Social</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#C4A862"></div>Governance</div>
+        </div>
+      </div>
+      <div class="card" style="width:260px;flex-shrink:0">
+        <div class="card-title">Topic Detail</div>
+        <div id="r-detail"><p style="font-size:12px;color:var(--text-3);padding:var(--sp-md)">Click any dot on the map.</p></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:var(--sp-lg);overflow-x:auto">
+      <div class="card-title">All Topics Summary</div>
+      <table class="results-table">
+        <thead><tr>
+          <th>Topic</th><th>ESG</th><th>TRS_IM</th><th>Net IM</th><th>Impact Mat.</th>
+          <th>TRS_FM</th><th>Net FM</th><th>Financial Mat.</th><th>Status</th>
+        </tr></thead>
+        <tbody id="r-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- end tool-body -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const TOPICS = [
+  {id:1,name:'Waste Management',esg:'E'},{id:2,name:'Energy Management',esg:'E'},
+  {id:3,name:'Emissions Management',esg:'E'},{id:4,name:'Water Management',esg:'E'},
+  {id:5,name:'Transportation & Logistics',esg:'E'},{id:6,name:'Community Engagement',esg:'S'},
+  {id:7,name:'Diversity & Inclusion',esg:'S'},{id:8,name:'Human Rights',esg:'S'},
+  {id:9,name:'Data Security & Protection',esg:'G'},{id:10,name:'Safety & Working Conditions',esg:'S'},
+  {id:11,name:'Product Quality & Safety',esg:'S'},{id:12,name:'Ethics & Transparency',esg:'G'},
+  {id:13,name:'Compliance',esg:'G'},{id:14,name:'Sustainable Product Design',esg:'E'},
+  {id:15,name:'Economic Performance',esg:'G'},{id:16,name:'Biodiversity',esg:'E'},
+  {id:17,name:'Customer Relationship Mgmt',esg:'S'},{id:18,name:'R&D Innovation & Technology',esg:'G'},
+  {id:19,name:'Human Capital Development',esg:'S'},{id:20,name:'Vendor Management',esg:'S'},
+  {id:21,name:'Employees in Value Chain',esg:'S'},
+];
+const CAT_COLORS = {'Key SH':'#9B8EC4','SME':'#6BAE8E','General':'#B0B0A8'};
+const ESG_COLORS = {E:'#6BAE8E',S:'#7BA7CC',G:'#C4A862'};
+const STEPS = ['A','B','C','D','R'];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let shList    = [];   // [{label,cat,power,interest,weight}]
+let ynFilter  = [];   // [topicIdx][shIdx] = 'Y'|'N'
+let shScores  = {};   // {ti:{si:{im,fm}}}
+let expScores = {};   // {ti:{type,scale,scope,irrem,likeli,fmType,fmMag,fmLi}}
+let dThresh   = 6.5;
+let unlocked  = ['A'];
+let curMap    = 'double';
+let myResults = null;
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+function goTo(step) {
+  if (!unlocked.includes(step)) return;
+  STEPS.forEach(s => {
+    const panel = document.getElementById('panel-'+s);
+    const pill  = document.getElementById('pill-'+s);
+    if (panel) panel.classList.remove('active');
+    if (pill) {
+      pill.classList.remove('active');
+      if (!unlocked.includes(s)) pill.classList.add('locked');
+      else pill.classList.remove('locked');
+    }
+  });
+  const p = document.getElementById('panel-'+step);
+  const pi = document.getElementById('pill-'+step);
+  if (p)  p.classList.add('active');
+  if (pi) { pi.classList.add('active'); pi.classList.remove('locked'); }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function nextStep(from, to) {
+  if (from === 'A' && shList.length < 3) {
+    alert('Please add at least 3 stakeholders before continuing.'); return;
+  }
+  if (!unlocked.includes(to)) unlocked.push(to);
+  const fp = document.getElementById('pill-'+from);
+  if (fp) { fp.classList.remove('active'); fp.classList.add('done'); }
+  if (to === 'B') buildGrid();
+  if (to === 'C') initC();
+  if (to === 'D') initD();
+  goTo(to);
+}
+
+// ── STEP A ────────────────────────────────────────────────────────────────
+function calcWeights() {
+  const total = shList.reduce((s,sh) => s + (sh.power+sh.interest)/2, 0);
+  shList.forEach(sh => { sh.avg = (sh.power+sh.interest)/2; sh.weight = total>0 ? sh.avg/total : 0; });
+}
+
+function renderSHTable() {
+  const tbody = document.getElementById('sh-tbody');
+  const empty = document.getElementById('sh-empty');
+  if (!tbody || !empty) return;
+  calcWeights();
+  if (shList.length === 0) { tbody.innerHTML=''; empty.style.display='block'; renderMatrix(); return; }
+  empty.style.display = 'none';
+  const catClass = c => c==='Key SH'?'tag-key':c==='SME'?'tag-sme':'tag-gen';
+  tbody.innerHTML = shList.map((sh,i) => `
+    <tr>
+      <td><strong style="color:var(--text)">${sh.label}</strong></td>
+      <td><span class="tag ${catClass(sh.cat)}">${sh.cat==='General'?'Gen':sh.cat}</span></td>
+      <td>${sh.power}</td><td>${sh.interest}</td>
+      <td>${(sh.weight*100).toFixed(1)}%</td>
+      <td><button class="del-btn" onclick="deleteSH(${i})">✕</button></td>
+    </tr>`).join('');
+  renderMatrix();
+}
+
+function addSH() {
+  if (shList.length >= 20) { alert('Maximum 20 stakeholders allowed.'); return; }
+  const label   = document.getElementById('ua-label').value.trim();
+  const powerEl = document.getElementById('ua-power');
+  const intEl   = document.getElementById('ua-interest');
+  const power   = parseInt(powerEl.value);
+  const interest= parseInt(intEl.value);
+  if (!label)                    { alert('Please enter a stakeholder label.'); return; }
+  if (isNaN(power)   || power   < 1 || power   > 10) { alert('Power Score must be between 1 and 10.'); return; }
+  if (isNaN(interest)|| interest< 1 || interest> 10) { alert('Interest Score must be between 1 and 10.'); return; }
+  shList.push({ label, cat: document.getElementById('ua-cat').value, power, interest });
+  document.getElementById('ua-label').value = '';
+  powerEl.value = 5;
+  intEl.value   = 5;
+  renderSHTable();
+  ynFilter = [];
+}
+
+function deleteSH(i) { shList.splice(i,1); renderSHTable(); ynFilter=[]; }
+
+function renderMatrix() {
+  const svg = document.getElementById('ua-svg');
+  if (!svg) return;
+  const W=400,H=340,pad={top:24,right:24,bottom:40,left:40};
+  const cW=W-pad.left-pad.right, cH=H-pad.top-pad.bottom;
+  const sx=v=>pad.left+((v-1)/9)*cW, sy=v=>pad.top+((10-v)/9)*cH;
+  const mid=5.5;
+  let h='';
+  h+=`<rect x="${sx(mid)}" y="${pad.top}" width="${W-pad.right-sx(mid)}" height="${sy(1)-pad.top}" fill="rgba(155,142,196,0.07)"/>`;
+  h+=`<line x1="${sx(mid)}" y1="${pad.top}" x2="${sx(mid)}" y2="${H-pad.bottom}" stroke="#D0CFC8" stroke-width="1" stroke-dasharray="3,2"/>`;
+  h+=`<line x1="${pad.left}" y1="${sy(mid)}" x2="${W-pad.right}" y2="${sy(mid)}" stroke="#D0CFC8" stroke-width="1" stroke-dasharray="3,2"/>`;
+  for(let v=1;v<=10;v++){
+    h+=`<text x="${sx(v)}" y="${H-pad.bottom+14}" text-anchor="middle" font-size="9" fill="#C0C0B8" font-family="DM Sans,sans-serif">${v}</text>`;
+    h+=`<text x="${pad.left-6}" y="${sy(v)+3}" text-anchor="end" font-size="9" fill="#C0C0B8" font-family="DM Sans,sans-serif">${v}</text>`;
+  }
+  h+=`<text x="${pad.left+cW/2}" y="${H-2}" text-anchor="middle" font-size="10" fill="#B0B0A8" font-family="DM Sans,sans-serif" letter-spacing="0.05em">INTEREST</text>`;
+  h+=`<text x="12" y="${pad.top+cH/2}" text-anchor="middle" font-size="10" fill="#B0B0A8" font-family="DM Sans,sans-serif" letter-spacing="0.05em" transform="rotate(-90,12,${pad.top+cH/2})">POWER</text>`;
+  shList.forEach((sh,i)=>{
+    const col=CAT_COLORS[sh.cat]||'#B0B0A8';
+    h+=`<circle cx="${sx(sh.interest)}" cy="${sy(sh.power)}" r="12" fill="${col}" fill-opacity="0.2" stroke="${col}" stroke-width="1.5"/>`;
+    h+=`<text x="${sx(sh.interest)}" y="${sy(sh.power)+4}" text-anchor="middle" font-size="9" fill="${col}" font-weight="600" font-family="DM Sans,sans-serif">${i+1}</text>`;
+  });
+  svg.innerHTML = h;
+}
+
+// ── STEP B ────────────────────────────────────────────────────────────────
+function initFilter() {
+  ynFilter = TOPICS.map(() => shList.map(() => 'Y'));
+}
+
+function buildGrid() {
+  if (ynFilter.length === 0) initFilter();
+  const table = document.getElementById('b-grid');
+  if (!table) return;
+  let h = '<thead><tr><th class="th-topic">Material Topic</th>';
+  shList.forEach(sh => { h+=`<th style="max-width:55px;overflow:hidden;text-overflow:ellipsis">${sh.label.substring(0,7)}</th>`; });
+  h += '</tr></thead><tbody>';
+  TOPICS.forEach((t,ti) => {
+    h += `<tr><td class="td-topic"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${ESG_COLORS[t.esg]};margin-right:6px;vertical-align:middle"></span>${t.name}</td>`;
+    shList.forEach((_,si) => {
+      const v = ynFilter[ti][si];
+      h += `<td><span class="yn ${v==='Y'?'yn-y':'yn-n'}" onclick="toggleYN(${ti},${si},this)">${v}</span></td>`;
+    });
+    h += '</tr>';
+  });
+  h += '</tbody>';
+  table.innerHTML = h;
+  updateBCount();
+}
+
+function toggleYN(ti,si,el) {
+  ynFilter[ti][si] = ynFilter[ti][si]==='Y'?'N':'Y';
+  el.textContent = ynFilter[ti][si];
+  el.className = `yn ${ynFilter[ti][si]==='Y'?'yn-y':'yn-n'}`;
+  updateBCount();
+}
+
+function setAllYN(val) {
+  ynFilter = TOPICS.map(()=>shList.map(()=>val));
+  buildGrid();
+}
+
+function updateBCount() {
+  const el = document.getElementById('b-count');
+  if (el) {
+    const cnt = ynFilter.reduce((s,row)=>s+row.filter(v=>v==='Y').length,0);
+    el.textContent = `${cnt} active connections`;
+  }
+}
+
+// ── STEP C ────────────────────────────────────────────────────────────────
+function calcTRS(ti) {
+  calcWeights();
+  const rel = shList.map((_,si)=>si).filter(si=>ynFilter[ti]&&ynFilter[ti][si]==='Y');
+  if (rel.length===0) return {im:'—',fm:'—'};
+  const wSum  = rel.reduce((s,si)=>s+shList[si].weight, 0);
+  const imSum = rel.reduce((s,si)=>s+shList[si].weight*(shScores[ti]?.[si]?.im||7), 0);
+  const fmSum = rel.reduce((s,si)=>s+shList[si].weight*(shScores[ti]?.[si]?.fm||7), 0);
+  return {im:(imSum/wSum).toFixed(2), fm:(fmSum/wSum).toFixed(2)};
+}
+
+function initC() {
+  TOPICS.forEach((_,ti) => {
+    if (!shScores[ti]) shScores[ti]={};
+    shList.forEach((_,si) => { if (!shScores[ti][si]) shScores[ti][si]={im:7,fm:7}; });
+  });
+  const sel = document.getElementById('c-topic');
+  if (sel) sel.innerHTML = TOPICS.map((t,i)=>`<option value="${i}">${t.name}</option>`).join('');
+  renderScores();
+}
+
+function bulkFill(dim, val) {
+  TOPICS.forEach((_,ti) => {
+    shList.forEach((_,si) => {
+      if (!shScores[ti]) shScores[ti]={};
+      if (!shScores[ti][si]) shScores[ti][si]={im:7,fm:7};
+      shScores[ti][si][dim] = parseInt(val);
+    });
+  });
+  renderScores();
+}
+
+function renderScores() {
+  const ti  = parseInt(document.getElementById('c-topic').value);
+  const trs = calcTRS(ti);
+  const trsEl = document.getElementById('c-trs');
+  if (trsEl) trsEl.textContent = `TRS_IM: ${trs.im}  |  TRS_FM: ${trs.fm}`;
+  const rel = shList.map((sh,si)=>({si,sh,rel:ynFilter[ti]&&ynFilter[ti][si]==='Y'})).filter(x=>x.rel);
+  const panel = document.getElementById('c-scores');
+  if (!panel) return;
+  if (rel.length===0) {
+    panel.innerHTML='<p style="font-size:13px;color:var(--text-3);padding:var(--sp-md)">No relevant stakeholders for this topic. Go back to Step B and mark at least one as Y.</p>';
+    return;
+  }
+  const opts = (val) => [1,2,3,4,5,6,7,8,9,10].map(v=>`<option value="${v}"${v===val?' selected':''}>${v}</option>`).join('');
+  panel.innerHTML = `<div class="scores-grid">${rel.map(({si,sh})=>`
+    <div class="score-card">
+      <div class="score-card-title">${sh.label} <span style="font-size:10px;color:var(--text-3)">(weight: ${(sh.weight*100).toFixed(1)}%)</span></div>
+      <div class="form-row">
+        <label class="form-label">Impact Materiality Score</label>
+        <select class="form-select" style="width:100%" onchange="setScore(${ti},${si},'im',this.value)">
+          ${opts(shScores[ti]?.[si]?.im||7)}
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Financial Materiality Score</label>
+        <select class="form-select" style="width:100%" onchange="setScore(${ti},${si},'fm',this.value)">
+          ${opts(shScores[ti]?.[si]?.fm||7)}
+        </select>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function setScore(ti,si,dim,val) {
+  if (!shScores[ti]) shScores[ti]={};
+  if (!shScores[ti][si]) shScores[ti][si]={im:7,fm:7};
+  shScores[ti][si][dim] = parseInt(val);
+  const trs = calcTRS(ti);
+  const el  = document.getElementById('c-trs');
+  if (el) el.textContent = `TRS_IM: ${trs.im}  |  TRS_FM: ${trs.fm}`;
+}
+
+// ── STEP D ────────────────────────────────────────────────────────────────
+function calcNet(ti) {
+  const e = expScores[ti] || {type:'AN',scale:5,scope:5,irrem:5,likeli:5,fmType:'R',fmMag:5,fmLi:5};
+  let netIM;
+  if      (e.type==='AN') netIM=(e.scale+e.scope+e.irrem)/3;
+  else if (e.type==='PN') netIM=(e.scale+e.scope+e.irrem+e.likeli)/4;
+  else if (e.type==='AP') netIM=(e.scale+e.scope)/2;
+  else                    netIM=(e.scale+e.scope+e.likeli)/3;
+  return {netIM:netIM.toFixed(2), netFM:((e.fmMag+e.fmLi)/2).toFixed(2)};
+}
+
+function initD() {
+  TOPICS.forEach((_,ti) => {
+    if (!expScores[ti]) expScores[ti]={type:'AN',scale:5,scope:5,irrem:5,likeli:5,fmType:'R',fmMag:5,fmLi:5};
+  });
+  const sel = document.getElementById('d-topic');
+  if (sel) sel.innerHTML = TOPICS.map((t,i)=>`<option value="${i}">${t.name}</option>`).join('');
+  renderExpert();
+}
+
+function setExp(ti,key,val) {
+  if (!expScores[ti]) expScores[ti]={type:'AN',scale:5,scope:5,irrem:5,likeli:5,fmType:'R',fmMag:5,fmLi:5};
+  expScores[ti][key] = isNaN(val)?val:parseFloat(val);
+}
+
+function setExpType(ti,type) { setExp(ti,'type',type); renderExpert(); }
+
+function refreshNet(ti) {
+  const net = calcNet(ti);
+  const el  = document.getElementById('d-net');
+  if (el) el.textContent = `Net IM: ${net.netIM}  |  Net FM: ${net.netFM}`;
+  const cd = document.getElementById(`d-calc-${ti}`);
+  if (cd) cd.innerHTML = `Net IM: ${net.netIM} &nbsp;|&nbsp; Net FM: ${net.netFM}`;
+}
+
+function renderExpert() {
+  const ti  = parseInt(document.getElementById('d-topic').value);
+  const e   = expScores[ti]||{type:'AN',scale:5,scope:5,irrem:5,likeli:5,fmType:'R',fmMag:5,fmLi:5};
+  const net = calcNet(ti);
+  const el  = document.getElementById('d-net');
+  if (el) el.textContent = `Net IM: ${net.netIM}  |  Net FM: ${net.netFM}`;
+  const needIrrem  = (e.type==='AN'||e.type==='PN');
+  const needLikeli = (e.type==='PN'||e.type==='PP');
+  const typeBtn = (t,label) => `<button class="type-btn${e.type===t?' sel':''}" onclick="setExpType(${ti},'${t}')">${label}</button>`;
+  const panel = document.getElementById('d-expert');
+  if (!panel) return;
+  const opts = (val) => [1,2,3,4,5,6,7,8,9,10].map(v=>`<option value="${v}"${v===val?' selected':''}>${v}</option>`).join('');
+  panel.innerHTML = `<div class="expert-card"><div class="expert-grid">
+    <div>
+      <div class="card-title">Impact Assessment (Eq 4.5)</div>
+      <div class="form-row"><label class="form-label">Impact Type</label>
+        <div class="type-row">
+          ${typeBtn('AN','Actual Negative')}${typeBtn('PN','Potential Negative')}
+          ${typeBtn('AP','Actual Positive')}${typeBtn('PP','Potential Positive')}
+        </div>
+      </div>
+      <div class="form-row"><label class="form-label">Scale — How grave is the impact?</label>
+        <select class="form-select" style="width:100%" onchange="setExp(${ti},'scale',this.value);refreshNet(${ti})">${opts(e.scale)}</select></div>
+      <div class="form-row"><label class="form-label">Scope — How widespread is the impact?</label>
+        <select class="form-select" style="width:100%" onchange="setExp(${ti},'scope',this.value);refreshNet(${ti})">${opts(e.scope)}</select></div>
+      ${needIrrem?`<div class="form-row"><label class="form-label">Irremediability — How hard is it to reverse?</label>
+        <select class="form-select" style="width:100%" onchange="setExp(${ti},'irrem',this.value);refreshNet(${ti})">${opts(e.irrem)}</select></div>`:''}
+      ${needLikeli?`<div class="form-row"><label class="form-label">Likelihood — Probability of occurring?</label>
+        <select class="form-select" style="width:100%" onchange="setExp(${ti},'likeli',this.value);refreshNet(${ti})">${opts(e.likeli)}</select></div>`:''}
+    </div>
+    <div>
+      <div class="card-title">Financial Assessment (Eq 4.6)</div>
+      <div class="form-row"><label class="form-label">Financial Type</label>
+        <div class="type-row">
+          <button class="type-btn${e.fmType==='R'?' sel':''}" onclick="setExp(${ti},'fmType','R');renderExpert()">Risk</button>
+          <button class="type-btn${e.fmType==='O'?' sel':''}" onclick="setExp(${ti},'fmType','O');renderExpert()">Opportunity</button>
+        </div>
+      </div>
+      <div class="form-row"><label class="form-label">Magnitude — Scale of financial effect?</label>
+        <select class="form-select" style="width:100%" onchange="setExp(${ti},'fmMag',this.value);refreshNet(${ti})">${opts(e.fmMag)}</select></div>
+      <div class="form-row"><label class="form-label">Likelihood — Probability of financial effect?</label>
+        <select class="form-select" style="width:100%" onchange="setExp(${ti},'fmLi',this.value);refreshNet(${ti})">${opts(e.fmLi)}</select></div>
+      <div class="calc-box" id="d-calc-${ti}">Net IM: ${net.netIM} &nbsp;|&nbsp; Net FM: ${net.netFM}</div>
+    </div>
+  </div></div>`;
+}
+
+// ── GENERATE MAPS ─────────────────────────────────────────────────────────
+function generateMaps() {
+  if (!unlocked.includes('R')) unlocked.push('R');
+  const fp = document.getElementById('pill-D');
+  if (fp) { fp.classList.remove('active'); fp.classList.add('done'); }
+
+  myResults = TOPICS.map((t,ti) => {
+    const trs = calcTRS(ti);
+    const net = calcNet(ti);
+    const im  = (parseFloat(net.netIM)+parseFloat(trs.im))/2;
+    const fm  = (parseFloat(net.netFM)+parseFloat(trs.fm))/2;
+    return {
+      id:t.id, name:t.name, esg:t.esg,
+      trs_im:parseFloat(trs.im), trs_fm:parseFloat(trs.fm),
+      net_im:parseFloat(net.netIM), net_fm:parseFloat(net.netFM),
+      im:parseFloat(im.toFixed(4)), fm:parseFloat(fm.toFixed(4)),
+    };
+  });
+
+  buildResultsTable();
+  drawMap('double');
+  goTo('R');
+}
+
+function buildResultsTable() {
+  const tbody = document.getElementById('r-tbody');
+  if (!tbody||!myResults) return;
+  tbody.innerHTML = myResults.map(r => {
+    const status = r.im>=dThresh&&r.fm>=dThresh?'✓ Doubly Material'
+                 : r.im>=dThresh?'◑ Impact Only'
+                 : r.fm>=dThresh?'◑ Financial Only':'✗ Below Threshold';
+    const sc = r.im>=dThresh&&r.fm>=dThresh?'color:var(--color-E-text)'
+             : r.im>=dThresh||r.fm>=dThresh?'color:var(--color-G-text)':'color:var(--text-3)';
+    return `<tr>
+      <td><strong style="color:var(--text)">${r.name}</strong></td>
+      <td><span class="tag tag-${r.esg.toLowerCase()}" style="background:${ESG_COLORS[r.esg]}22;color:${ESG_COLORS[r.esg]}">${r.esg}</span></td>
+      <td>${r.trs_im.toFixed(2)}</td><td>${r.net_im.toFixed(2)}</td>
+      <td><strong>${r.im.toFixed(2)}</strong></td>
+      <td>${r.trs_fm.toFixed(2)}</td><td>${r.net_fm.toFixed(2)}</td>
+      <td><strong>${r.fm.toFixed(2)}</strong></td>
+      <td style="font-size:11px;font-weight:500;${sc}">${status}</td>
+    </tr>`;
+  }).join('');
+}
+
+function drawMap(mapType) {
+  const svg = document.getElementById('r-svg');
+  if (!svg||!myResults) return;
+  const titles={double:'Double Materiality Map',impact:'Impact Materiality Map',financial:'Financial Materiality Map'};
+  const xKeys={double:'im',impact:'net_im',financial:'net_fm'};
+  const yKeys={double:'fm',impact:'trs_im',financial:'trs_fm'};
+  const xLbls={double:'Impact Materiality (Eq 4.7)',impact:'Net Impact Score (Eq 4.5)',financial:'Net Financial Score (Eq 4.6)'};
+  const yLbls={double:'Financial Materiality (Eq 4.8)',impact:'TRS_IM (Eq 4.3)',financial:'TRS_FM (Eq 4.4)'};
+  const titleEl = document.getElementById('r-map-title');
+  if (titleEl) titleEl.textContent = titles[mapType];
+  const W=620,H=480,pad={top:24,right:28,bottom:52,left:52};
+  const cW=W-pad.left-pad.right,cH=H-pad.top-pad.bottom;
+  const scX=v=>pad.left+((v-1)/9)*cW, scY=v=>pad.top+((10-v)/9)*cH;
+  const tx=scX(dThresh),ty=scY(dThresh);
+  let h='';
+  h+=`<rect x="${tx}" y="${pad.top}" width="${W-pad.right-tx}" height="${ty-pad.top}" fill="rgba(107,174,142,0.07)"/>`;
+  for(let v=1;v<=10;v++){
+    h+=`<line x1="${scX(v)}" y1="${pad.top}" x2="${scX(v)}" y2="${H-pad.bottom}" stroke="#EDECE8" stroke-width="1"/>`;
+    h+=`<line x1="${pad.left}" y1="${scY(v)}" x2="${W-pad.right}" y2="${scY(v)}" stroke="#EDECE8" stroke-width="1"/>`;
+    h+=`<text x="${scX(v)}" y="${H-pad.bottom+16}" text-anchor="middle" font-size="10" fill="#B0B0A8" font-family="DM Sans,sans-serif">${v}</text>`;
+    h+=`<text x="${pad.left-8}" y="${scY(v)+4}" text-anchor="end" font-size="10" fill="#B0B0A8" font-family="DM Sans,sans-serif">${v}</text>`;
+  }
+  h+=`<line x1="${tx}" y1="${pad.top}" x2="${tx}" y2="${H-pad.bottom}" stroke="#C8C7C0" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+  h+=`<line x1="${pad.left}" y1="${ty}" x2="${W-pad.right}" y2="${ty}" stroke="#C8C7C0" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+  h+=`<text x="${tx+4}" y="${pad.top+12}" font-size="9" fill="#B0B0A8" font-family="DM Sans,sans-serif">Threshold ${dThresh}</text>`;
+  h+=`<text x="${pad.left+cW/2}" y="${H-4}" text-anchor="middle" font-size="10" fill="#9C9C96" font-family="DM Sans,sans-serif">${xLbls[mapType].toUpperCase()}</text>`;
+  h+=`<text x="13" y="${pad.top+cH/2}" text-anchor="middle" font-size="10" fill="#9C9C96" font-family="DM Sans,sans-serif" transform="rotate(-90,13,${pad.top+cH/2})">${yLbls[mapType].substring(0,28).toUpperCase()}</text>`;
+
+  myResults.forEach(r => {
+    const xv = r[xKeys[mapType]]||0, yv = r[yKeys[mapType]]||0;
+    const cx=scX(xv), cy=scY(yv);
+    const col=ESG_COLORS[r.esg];
+    const sn=r.name.length>13?r.name.substring(0,12)+'…':r.name;
+    h+=`<g class="r-dot" data-id="${r.id}" style="cursor:pointer">
+      <circle cx="${cx}" cy="${cy}" r="12" fill="${col}" fill-opacity="0.22" stroke="${col}" stroke-width="1.5"/>
+      <text x="${cx}" y="${cy-15}" text-anchor="middle" font-size="8" fill="${col}" font-family="DM Sans,sans-serif" font-weight="500">${sn}</text>
+      <text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="9" fill="${col}" font-family="DM Sans,sans-serif" font-weight="600">${r.id}</text>
+    </g>`;
+  });
+
+  svg.innerHTML = h;
+
+  svg.querySelectorAll('.r-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      const r = myResults.find(x=>x.id===+dot.dataset.id);
+      if (!r) return;
+      const col = ESG_COLORS[r.esg];
+      const status = r.im>=dThresh&&r.fm>=dThresh?'✓ Doubly Material'
+                   : r.im>=dThresh?'◑ Impact Only'
+                   : r.fm>=dThresh?'◑ Financial Only':'✗ Below Threshold';
+      document.getElementById('r-detail').innerHTML=`
+        <div style="font-family:var(--font-d);font-size:17px;font-weight:500;color:var(--text);margin-bottom:var(--sp-md)">${r.name}</div>
+        <div class="detail-row"><span class="detail-label">Impact Mat.</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="score-bar-wrap"><div class="score-bar" style="width:${((r.im-1)/9)*100}%;background:${col}"></div></div>
+            <span class="detail-val">${r.im.toFixed(2)}</span></div></div>
+        <div class="detail-row"><span class="detail-label">Financial Mat.</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="score-bar-wrap"><div class="score-bar" style="width:${((r.fm-1)/9)*100}%;background:${col}"></div></div>
+            <span class="detail-val">${r.fm.toFixed(2)}</span></div></div>
+        <div class="detail-row"><span class="detail-label">TRS_IM</span><span class="detail-val">${r.trs_im.toFixed(2)}</span></div>
+        <div class="detail-row"><span class="detail-label">TRS_FM</span><span class="detail-val">${r.trs_fm.toFixed(2)}</span></div>
+        <div class="detail-row"><span class="detail-label">Net Impact</span><span class="detail-val">${r.net_im.toFixed(2)}</span></div>
+        <div class="detail-row"><span class="detail-label">Net Financial</span><span class="detail-val">${r.net_fm.toFixed(2)}</span></div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-val" style="font-size:11px">${status}</span></div>`;
+    });
+  });
+}
+
+function rTab(btn, mapType) {
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  curMap = mapType;
+  drawMap(mapType);
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────
+function exportCSV() {
+  if (!myResults) { alert('Please generate your maps first.'); return; }
+  let csv = 'Topic_ID,Topic_Name,ESG,TRS_IM,TRS_FM,Net_IM,Net_FM,Impact_Materiality,Financial_Materiality,Status\n';
+  myResults.forEach(r => {
+    const s = r.im>=dThresh&&r.fm>=dThresh?'Doubly Material':r.im>=dThresh?'Impact Only':r.fm>=dThresh?'Financial Only':'Below Threshold';
+    csv += `${r.id},"${r.name}",${r.esg},${r.trs_im.toFixed(4)},${r.trs_fm.toFixed(4)},${r.net_im.toFixed(4)},${r.net_fm.toFixed(4)},${r.im.toFixed(4)},${r.fm.toFixed(4)},${s}\n`;
+  });
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download='my_dma_results.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────
+function resetTool() {
+  shList=[]; ynFilter=[]; shScores={}; expScores={}; dThresh=6.5;
+  myResults=null; unlocked=['A'];
+  STEPS.forEach(s => {
+    const p = document.getElementById('panel-'+s);
+    const pill = document.getElementById('pill-'+s);
+    if (p) p.classList.remove('active');
+    if (pill) { pill.classList.remove('active','done'); if(s!=='A') pill.classList.add('locked'); }
+  });
+  const tbody = document.getElementById('sh-tbody');
+  const empty = document.getElementById('sh-empty');
+  if (tbody) tbody.innerHTML='';
+  if (empty) empty.style.display='block';
+  renderMatrix();
+  goTo('A');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  renderMatrix();
+});
+</script>
+</body>
+</html>
