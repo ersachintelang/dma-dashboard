@@ -1620,10 +1620,7 @@ body {
 
 .s7-data-note strong { font-weight: 600; }
 
-@media (max-width: 900px) {
-  .s6-layout { grid-template-columns: 1fr; }
-  .s7-grid   { grid-template-columns: 1fr; }
-}
+
 
 /* ═══════════════════════════════════════════════════════════════
    SCROLL FADE-IN ANIMATION
@@ -1664,6 +1661,7 @@ body {
       <li><a href="#relevance">Relevance Explorer</a></li>
       <li><a href="#maps">Materiality Maps</a></li>
       <li><a href="#methodology">Methodology</a></li>
+      <li><a href="dma-tool.html" target="_blank" style="background:var(--color-G-bg);color:var(--color-G-text);padding:4px 12px;border-radius:20px;font-weight:500;border:1px solid var(--color-G)">DMA Analysis Tool</a></li>
     </ul>
   </div>
 </nav>
@@ -2426,6 +2424,14 @@ body {
         <strong>Data Transparency Note.</strong> This dashboard presents the results of a Double Materiality Assessment conducted using the Stakeholder-Centric Process described above. The assessment covers <strong>21 material topics</strong> across Environmental, Social, and Governance dimensions and <strong>20 stakeholder groups</strong>. Stakeholder groups SH-1 through SH-8 represent real engagement data collected through structured surveys and workshops. Groups SH-9 through SH-20 are illustrative stakeholders generated to demonstrate the full Power vs Interest matrix and its effect on Topic Relevance Scores. All scoring logic follows the methodology documented in Appendix E of the source thesis. No stakeholder names or organisational identifiers are disclosed. The materiality threshold applied in this assessment is defined at a combined score of 6.0 on a 1 to 10 scale for both dimensions, in accordance with the organisation-defined threshold principle under ESRS 1 paragraph AR 15 and the ESG SteerCo governance checkpoint at Step 5C.
       </div>
 
+      <!-- CTA to Stage 2 -->
+      <div style="margin-top:var(--space-xl);padding-top:var(--space-xl);border-top:1px solid var(--border);text-align:center">
+        <p class="section-label" style="margin-bottom:var(--space-sm)">Ready to apply this to your organisation?</p>
+        <h3 style="font-family:var(--font-display);font-size:28px;font-weight:400;color:var(--text-primary);margin-bottom:var(--space-md)">Run Your Own Double Materiality Assessment</h3>
+        <p style="font-size:14px;color:var(--text-secondary);max-width:480px;margin:0 auto var(--space-lg)">Enter your stakeholders, set relevance filters, score each topic, and generate your own Impact, Financial, and Double Materiality maps using the same framework and equations.</p>
+        <a href="dma-tool.html" target="_blank" class="btn btn-primary" style="font-size:14px;padding:13px 32px">Open DMA Analysis Tool →</a>
+      </div>
+
     </div>
   </section>
 
@@ -2591,9 +2597,14 @@ function buildSHTable() {
   `).join('');
 }
 
-// Run on load
-buildMatrix();
-buildSHTable();
+// Safe init on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  buildMatrix();
+  buildSHTable();
+  buildS5Grid();
+  buildMap('double','all');
+  uaRenderMatrix();
+});
 
 // ══════════════════════════════════════════════════════════════
 // SECTION 5: RELEVANCE EXPLORER
@@ -2757,7 +2768,6 @@ document.getElementById('s5-reset-btn')?.addEventListener('click', () => {
   buildS5Grid();
 });
 
-buildS5Grid();
 
 // ══════════════════════════════════════════════════════════════
 // SECTION 6: MATERIALITY MAPS
@@ -2937,8 +2947,6 @@ document.querySelectorAll('.s6-filter-btn').forEach(btn => {
   });
 });
 
-buildMap('double','all');
-
 // ── Section 3 Step switching ───────────────────────────────────────────────
 const processSteps   = document.querySelectorAll('.process-step');
 const stepDetails    = document.querySelectorAll('.step-detail');
@@ -2996,7 +3004,6 @@ const fadeObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 
 fadeElements.forEach(el => fadeObserver.observe(el));
-</script>
 
-</body>
-</html>
+
+</script>
