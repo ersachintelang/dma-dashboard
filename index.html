@@ -1661,7 +1661,7 @@ body {
       <li><a href="#relevance">Relevance Explorer</a></li>
       <li><a href="#maps">Materiality Maps</a></li>
       <li><a href="#methodology">Methodology</a></li>
-      <li><a href="dma-tool.html" target="_blank" style="background:var(--color-G-bg);color:var(--color-G-text);padding:4px 12px;border-radius:20px;font-weight:500;border:1px solid var(--color-G)">DMA Analysis Tool</a></li>
+      <li><a href="https://ersachintelang.github.io/dma-dashboard/dma-tool.html" target="_blank" style="background:var(--color-G-bg);color:var(--color-G-text);padding:4px 12px;border-radius:20px;font-weight:500;border:1px solid var(--color-G)">DMA Analysis Tool</a></li>
     </ul>
   </div>
 </nav>
@@ -2287,150 +2287,109 @@ body {
         </div>
       </div>
 
+      <!-- CTA: DMA Analysis Tool -->
+      <div style="margin-top:var(--space-xl);padding:var(--space-xl) var(--space-lg);background:var(--bg-card);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:var(--space-lg);flex-wrap:wrap">
+        <div style="max-width:600px">
+          <p style="font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:var(--space-sm)">Apply This Framework</p>
+          <h3 style="font-family:var(--font-display);font-size:26px;font-weight:400;color:var(--text-primary);margin-bottom:var(--space-sm)">Conduct Your Own Double Materiality Assessment</h3>
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.7">Use the DMA Analysis Tool to define your stakeholder universe, apply the Binary Relevance Filter, enter expert assessment scores, and generate your own Impact, Financial, and Double Materiality maps. The tool applies the same equations and methodology demonstrated in this assessment.</p>
+        </div>
+        <a href="https://ersachintelang.github.io/dma-dashboard/dma-tool.html" target="_blank" class="btn btn-primary" style="font-size:14px;padding:14px 32px;white-space:nowrap;flex-shrink:0">Open DMA Analysis Tool →</a>
+      </div>
+
     </div>
   </section>
 
-  <!-- SECTION 7: METHODOLOGY -->
-  <section id="methodology" class="section fade-in">
+  <!-- SECTION 7: METHODOLOGY — collapsible -->
+  <section id="methodology" class="section fade-in" style="padding-top:0">
     <div class="section-inner">
 
-      <p class="section-label">Reference</p>
-      <h2 class="section-heading">Methodology and Sources</h2>
-      <p class="section-sub">The scoring logic, regulatory grounding, and data transparency behind every number in this dashboard.</p>
+      <!-- Toggle trigger -->
+      <div style="text-align:center;padding:var(--space-lg) 0;border-top:1px solid var(--border)">
+        <button id="s7-toggle-btn" onclick="s7Toggle()"
+          style="background:none;border:1px solid var(--border);border-radius:20px;padding:8px 20px;font-size:12px;font-weight:500;letter-spacing:0.04em;color:var(--text-secondary);cursor:pointer;font-family:var(--font-body);transition:all 0.2s">
+          View Methodology and Sources ↓
+        </button>
+      </div>
 
-      <div class="s7-grid">
+      <!-- Collapsible content -->
+      <div id="s7-content" style="display:none;animation:panelFade 0.3s ease">
 
-        <!-- Source standards -->
-        <div class="s7-card">
-          <h4>Standards and Frameworks</h4>
-          <div class="s7-source-row">
-            <span class="s7-source-tag">ESRS 1</span>
-            <div class="s7-source-text">
-              <strong>European Sustainability Reporting Standards — General Requirements</strong>
-              Defines Double Materiality as the obligation to assess both impact materiality (Inside-Out) and financial materiality (Outside-In). Requires application of appropriate quantitative or qualitative thresholds. Mandates ESG SteerCo-equivalent governance oversight of the materiality determination process.
-            </div>
-          </div>
-          <div class="s7-source-row">
-            <span class="s7-source-tag">GRI 3</span>
-            <div class="s7-source-text">
-              <strong>GRI Standard 3: Material Topics 2021</strong>
-              Governs the impact materiality dimension. Requires organisations to identify actual and potential negative and positive impacts across their full value chain through genuine stakeholder engagement. Severity of negative impacts is determined by Scale, Scope, and Irremediable character. Likelihood is additionally assessed for potential impacts.
-            </div>
-          </div>
-          <div class="s7-source-row">
-            <span class="s7-source-tag">EFRAG IG1</span>
-            <div class="s7-source-text">
-              <strong>Materiality Assessment Implementation Guidance — May 2024</strong>
-              Provides authoritative step-by-step guidance for conducting a DMA under ESRS. Financial materiality thresholds are based on a combination of likelihood of occurrence and magnitude of financial effects across short, medium, and long-term horizons. A topic may be financially material even when effects are not yet reliably measurable, in which case qualitative thresholds apply.
-            </div>
-          </div>
-          <div class="s7-source-row">
-            <span class="s7-source-tag">BRSR</span>
-            <div class="s7-source-text">
-              <strong>SEBI Business Responsibility and Sustainability Reporting — 2021</strong>
-              India's mandatory ESG disclosure framework for the top 1,000 listed companies. Requires quantitative KPI reporting across nine NGRBC principles. BRSR Core (2023) introduced limited assurance requirements for key ESG indicators applicable to the top 250 listed entities from FY 2025-26.
-            </div>
-          </div>
-          <div class="s7-source-row">
-            <span class="s7-source-tag">THESIS</span>
-            <div class="s7-source-text">
-              <strong>Telang, S.A. (2026). Double Materiality Assessment: A Stakeholder-Centric Process for the Indian Industrial Context.</strong>
-              Master's Thesis, Karlsruhe Institute of Technology (KIT), Institute of Production Science (wbk). The five-step framework, stakeholder weighting methodology, Binary Relevance Filter, and IRO Register structure underpinning this dashboard are sourced from Chapter 4 and Appendix E of this work.
-            </div>
-          </div>
-        </div>
+        <h2 class="section-heading" style="margin-top:var(--space-lg)">Methodology and Sources</h2>
+        <p class="section-sub">The scoring logic, regulatory grounding, and data transparency behind every number in this dashboard.</p>
 
-        <!-- Scoring logic -->
-        <div class="s7-card">
-          <h4>Thresholds and What They Mean</h4>
+        <div class="s7-grid">
 
-          <div class="s7-scoring-block" style="background:var(--color-G-bg);border:1px solid var(--color-G);border-radius:8px;padding:var(--space-lg);margin-bottom:var(--space-lg)">
-            <h5 style="color:var(--color-G-text)">How the Materiality Threshold Is Set</h5>
-            <p style="font-size:14px;color:var(--color-G-text);line-height:1.75">
-              Neither ESRS nor GRI prescribes a specific numerical threshold for determining materiality. EFRAG IG1 paragraph 27 states clearly that "ESRS 1 sets criteria for the materiality assessment but not specific thresholds to determine when a matter or information is material or not." The threshold is therefore an organisation-defined decision, informed by the organisation's specific facts, circumstances, and sector context, and must be validated by the ESG Steering Committee at Step 5C of the assessment process. ESRS 2 paragraphs 53 and 59 further require that the organisation disclose how its materiality thresholds have been set or applied.
-              <br><br>
-              <strong>For this assessment, a threshold of 6.5 on a 1 to 10 scale has been applied independently to both Impact Materiality and Financial Materiality.</strong> This means a topic must score 6.5 or above on a given dimension to be considered material in that dimension. This threshold has been set by the author of this framework and validated through the ESG SteerCo governance checkpoint at Step 5C. When conducting your own assessment, your organisation must determine and disclose its own threshold in accordance with ESRS 1 paragraph AR 15 and ESRS 2 paragraphs 53 and 59.
-            </p>
-          </div>
-            <h5>The Scoring Scale — 1 to 10</h5>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">Low · 1 to 3</span>
-              <span class="s7-scoring-desc">Marginal impact or financial effect. Limited in scale, unlikely to materialise, or easily remediated. Topics in this band are monitored but do not require immediate disclosure or action.</span>
+          <div class="s7-card">
+            <h4>Standards and Frameworks</h4>
+            <div class="s7-source-row">
+              <span class="s7-source-tag">ESRS 1</span>
+              <div class="s7-source-text">
+                <strong>European Sustainability Reporting Standards — General Requirements</strong>
+                Defines Double Materiality as the obligation to assess both impact materiality (Inside-Out) and financial materiality (Outside-In). Requires application of appropriate quantitative or qualitative thresholds. Mandates ESG SteerCo-equivalent governance oversight of the materiality determination process.
+              </div>
             </div>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">Medium · 4 to 7</span>
-              <span class="s7-scoring-desc">Moderate significance. The effect is present and acknowledged but not severe enough to be decisive on its own. Many topics cluster here. Context and stakeholder weighting determine whether they cross the materiality line.</span>
+            <div class="s7-source-row">
+              <span class="s7-source-tag">GRI 3</span>
+              <div class="s7-source-text">
+                <strong>GRI Standard 3: Material Topics 2021</strong>
+                Governs the impact materiality dimension. Requires organisations to identify actual and potential negative and positive impacts across their full value chain through genuine stakeholder engagement. Severity of negative impacts is determined by Scale, Scope, and Irremediable character. Likelihood is additionally assessed for potential impacts.
+              </div>
             </div>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">High · 8 to 10</span>
-              <span class="s7-scoring-desc">Major or life-threatening impacts on people or the environment, or large-scale financial effects on revenues, costs, assets, or access to capital. Topics scoring here are material by any reasonable threshold.</span>
+            <div class="s7-source-row">
+              <span class="s7-source-tag">EFRAG IG1</span>
+              <div class="s7-source-text">
+                <strong>Materiality Assessment Implementation Guidance — May 2024</strong>
+                Provides authoritative step-by-step guidance for conducting a DMA under ESRS. Financial materiality thresholds are based on a combination of likelihood of occurrence and magnitude of financial effects across short, medium, and long-term horizons. A topic may be financially material even when effects are not yet reliably measurable, in which case qualitative thresholds apply.
+              </div>
+            </div>
+            <div class="s7-source-row">
+              <span class="s7-source-tag">BRSR</span>
+              <div class="s7-source-text">
+                <strong>SEBI Business Responsibility and Sustainability Reporting — 2021</strong>
+                India's mandatory ESG disclosure framework for the top 1,000 listed companies. Requires quantitative KPI reporting across nine NGRBC principles. BRSR Core (2023) introduced limited assurance requirements for key ESG indicators applicable to the top 250 listed entities from FY 2025-26.
+              </div>
+            </div>
+            <div class="s7-source-row">
+              <span class="s7-source-tag">THESIS</span>
+              <div class="s7-source-text">
+                <strong>Telang, S.A. (2026). Double Materiality Assessment: A Stakeholder-Centric Process for the Indian Industrial Context.</strong>
+                Master's Thesis, Karlsruhe Institute of Technology (KIT), Institute of Production Science (wbk). The five-step framework, stakeholder weighting methodology, Binary Relevance Filter, and IRO Register structure underpinning this dashboard are sourced from Chapter 4 and Appendix E of this work.
+              </div>
             </div>
           </div>
 
-          <div class="s7-scoring-block">
-            <h5>Impact Materiality Threshold</h5>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">What makes an impact material</span>
-              <span class="s7-scoring-desc">Per ESRS 1 Chapter 3.4 and GRI 3, a negative impact is material when its severity is significant. Severity is determined by how grave the impact is (Scale), how many people or how much of the environment is affected (Scope), and whether the harm can be reversed or remediated (Irremediability). For potential impacts, the probability of occurrence (Likelihood) is also assessed.</span>
+          <div class="s7-card">
+            <h4>Thresholds and What They Mean</h4>
+            <div class="s7-scoring-block" style="background:var(--color-G-bg);border:1px solid var(--color-G);border-radius:8px;padding:var(--space-lg);margin-bottom:var(--space-lg)">
+              <h5 style="color:var(--color-G-text)">How the Materiality Threshold Is Set</h5>
+              <p style="font-size:14px;color:var(--color-G-text);line-height:1.75">
+                Neither ESRS nor GRI prescribes a specific numerical threshold for determining materiality. EFRAG IG1 paragraph 27 states clearly that "ESRS 1 sets criteria for the materiality assessment but not specific thresholds to determine when a matter or information is material or not." The threshold is therefore an organisation-defined decision, informed by the organisation's specific facts, circumstances, and sector context, and must be validated by the ESG Steering Committee at Step 5C of the assessment process. ESRS 2 paragraphs 53 and 59 further require that the organisation disclose how its materiality thresholds have been set or applied.
+                <br><br>
+                <strong>For this assessment, a threshold of 6.5 on a 1 to 10 scale has been applied independently to both Impact Materiality and Financial Materiality.</strong> This threshold has been set by the author of this framework and validated through the ESG SteerCo governance checkpoint at Step 5C.
+              </p>
             </div>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">Positive impacts</span>
-              <span class="s7-scoring-desc">Positive impacts are assessed on Scale and Scope only. Irremediability does not apply to benefits. This follows EFRAG IG1 guidance, which structurally excludes irremediability from positive impact scoring.</span>
+            <div class="s7-scoring-block">
+              <h5>The Scoring Scale — 1 to 10</h5>
+              <div class="s7-scoring-row"><span class="s7-scoring-label">Low · 1 to 3</span><span class="s7-scoring-desc">Marginal impact or financial effect. Monitored but does not require immediate disclosure or action.</span></div>
+              <div class="s7-scoring-row"><span class="s7-scoring-label">Medium · 4 to 7</span><span class="s7-scoring-desc">Moderate significance. Context and stakeholder weighting determine whether topics cross the materiality line.</span></div>
+              <div class="s7-scoring-row"><span class="s7-scoring-label">High · 8 to 10</span><span class="s7-scoring-desc">Major impacts on people or the environment, or large-scale financial effects. Material by any reasonable threshold.</span></div>
             </div>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">Threshold applied here</span>
-              <span class="s7-scoring-desc">A combined Impact Materiality Score of 6.5 or above on a 1 to 10 scale. This threshold is organisation-defined and validated by the ESG SteerCo at Step 5C, consistent with ESRS 1 paragraph AR 15 which requires thresholds to be set and disclosed.</span>
-            </div>
-          </div>
-
-          <div class="s7-scoring-block">
-            <h5>Financial Materiality Threshold</h5>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">What makes a risk or opportunity material</span>
-              <span class="s7-scoring-desc">Per ESRS 1 paragraph AR 15, financial materiality is determined by the combination of Magnitude (how large the potential financial effect would be on revenues, costs, assets, liabilities, or access to capital) and Likelihood (how probable that effect is). Both risks and opportunities are assessed using the same two dimensions. A high-magnitude but low-likelihood risk carries equivalent analytical weight to a high-likelihood moderate-magnitude risk.</span>
-            </div>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">Time horizon</span>
-              <span class="s7-scoring-desc">Financial materiality thresholds must cover short, medium, and long-term horizons. A topic may be financially material even if its effects are not yet measurable at the reporting date. In such cases qualitative thresholds apply, per EFRAG IG1 paragraph 134.</span>
-            </div>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">Threshold applied here</span>
-              <span class="s7-scoring-desc">A combined Financial Materiality Score of 6.5 or above on a 1 to 10 scale, validated by the ESG SteerCo as a separate governance event from the Impact Materiality approval, ensuring the two dimensions are determined independently before being combined on the Double Materiality Map.</span>
-            </div>
-          </div>
-
-          <div class="s7-scoring-block">
-            <h5>Double Materiality: Reading the Map</h5>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">Upper right · Doubly material</span>
-              <span class="s7-scoring-desc">Topic scores above 6.5 on both axes. Significant from both the Inside-Out and Outside-In perspective. Full disclosure required under ESRS, GRI, or BRSR as applicable.</span>
-            </div>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">Upper left or lower right · Singly material</span>
-              <span class="s7-scoring-desc">Topic is material in one dimension only. Per ESRS 1 paragraph 33, singly material topics still require policy, action, and target disclosures even if full metric reporting is not triggered in the non-material dimension.</span>
-            </div>
-            <div class="s7-scoring-row">
-              <span class="s7-scoring-label">Lower left · Below threshold</span>
-              <span class="s7-scoring-desc">Topic scores below 6.5 on both axes. Not material in this reporting cycle. Flagged for reassessment in the next annual cycle as conditions and stakeholder views evolve.</span>
+            <div class="s7-scoring-block">
+              <h5>Double Materiality: Reading the Map</h5>
+              <div class="s7-scoring-row"><span class="s7-scoring-label">Upper right</span><span class="s7-scoring-desc">Doubly material. Above 6.5 on both axes. Full disclosure required under ESRS, GRI, or BRSR.</span></div>
+              <div class="s7-scoring-row"><span class="s7-scoring-label">Upper left or lower right</span><span class="s7-scoring-desc">Singly material. Per ESRS 1 paragraph 33, still requires policy, action, and target disclosures.</span></div>
+              <div class="s7-scoring-row"><span class="s7-scoring-label">Lower left</span><span class="s7-scoring-desc">Below threshold. Not material in this reporting cycle. Flagged for reassessment in the next annual cycle.</span></div>
             </div>
           </div>
 
         </div>
 
-      </div>
+        <div class="s7-data-note">
+          <strong>Data Transparency Note.</strong> This dashboard presents the results of a Double Materiality Assessment conducted using the Stakeholder-Centric Process described above. The assessment covers <strong>21 material topics</strong> and <strong>20 stakeholder groups</strong>. SH-1 through SH-8 represent real engagement data. SH-9 through SH-20 are illustrative stakeholders generated to demonstrate the Power vs Interest matrix logic. All scoring follows the methodology in Appendix E of the source thesis. No stakeholder names or organisational identifiers are disclosed. Threshold applied: 6.5 on a 1 to 10 scale, per ESRS 1 paragraph AR 15.
+        </div>
 
-      <!-- Data transparency note -->
-      <div class="s7-data-note">
-        <strong>Data Transparency Note.</strong> This dashboard presents the results of a Double Materiality Assessment conducted using the Stakeholder-Centric Process described above. The assessment covers <strong>21 material topics</strong> across Environmental, Social, and Governance dimensions and <strong>20 stakeholder groups</strong>. Stakeholder groups SH-1 through SH-8 represent real engagement data collected through structured surveys and workshops. Groups SH-9 through SH-20 are illustrative stakeholders generated to demonstrate the full Power vs Interest matrix and its effect on Topic Relevance Scores. All scoring logic follows the methodology documented in Appendix E of the source thesis. No stakeholder names or organisational identifiers are disclosed. The materiality threshold applied in this assessment is defined at a combined score of 6.0 on a 1 to 10 scale for both dimensions, in accordance with the organisation-defined threshold principle under ESRS 1 paragraph AR 15 and the ESG SteerCo governance checkpoint at Step 5C.
-      </div>
-
-      <!-- CTA to Stage 2 -->
-      <div style="margin-top:var(--space-xl);padding-top:var(--space-xl);border-top:1px solid var(--border);text-align:center">
-        <p class="section-label" style="margin-bottom:var(--space-sm)">Ready to apply this to your organisation?</p>
-        <h3 style="font-family:var(--font-display);font-size:28px;font-weight:400;color:var(--text-primary);margin-bottom:var(--space-md)">Run Your Own Double Materiality Assessment</h3>
-        <p style="font-size:14px;color:var(--text-secondary);max-width:480px;margin:0 auto var(--space-lg)">Enter your stakeholders, set relevance filters, score each topic, and generate your own Impact, Financial, and Double Materiality maps using the same framework and equations.</p>
-        <a href="dma-tool.html" target="_blank" class="btn btn-primary" style="font-size:14px;padding:13px 32px">Open DMA Analysis Tool →</a>
-      </div>
+      </div><!-- end s7-content -->
 
     </div>
   </section>
@@ -2603,7 +2562,6 @@ document.addEventListener('DOMContentLoaded', function() {
   buildSHTable();
   buildS5Grid();
   buildMap('double','all');
-  uaRenderMatrix();
 });
 
 // ══════════════════════════════════════════════════════════════
@@ -2974,6 +2932,16 @@ s2Tabs.forEach(tab => {
     document.getElementById('tab-' + target).classList.add('active');
   });
 });
+
+// ── Section 7 Methodology toggle ──────────────────────────────────────────
+function s7Toggle() {
+  const content = document.getElementById('s7-content');
+  const btn     = document.getElementById('s7-toggle-btn');
+  if (!content || !btn) return;
+  const isOpen = content.style.display !== 'none';
+  content.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? 'View Methodology and Sources ↓' : 'Hide Methodology ↑';
+}
 
 // ── Active nav link on scroll ──────────────────────────────────────────────
 const sections = document.querySelectorAll('section[id]');
